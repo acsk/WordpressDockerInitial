@@ -1,0 +1,38 @@
+# Arquivo de variáveis de ambiente (contém senhas)
+.env
+
+# Dados dos volumes Docker
+/mysql_data/
+/wordpress_data/
+
+# Logs
+*.log
+logs/
+
+# Sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.backup
+*.sql
+
+# Temporary files
+*.tmp
+*.temp
+# Pastas locais (bind mounts)
+/wordpress/
+/mysql-data/
+docker-compose.yml.backup
