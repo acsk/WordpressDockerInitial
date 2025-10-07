@@ -1,0 +1,99 @@
+/*
+==========================================================================
+   WP RESGATE - CSS FIX PARA SCROLL
+   Correções específicas para problemas de rolagem
+==========================================================================
+*/
+
+/* Prevenção de problemas de scroll */
+html, body {
+    overflow-x: hidden;
+}
+
+/* Otimização de performance para elementos animados */
+.hero,
+.navbar,
+.floating-whatsapp {
+    backface-visibility: hidden;
+    perspective: 1000px;
+    transform: translateZ(0);
+}
+
+/* Correção para scroll suave em diferentes browsers */
+@media screen and (prefers-reduced-motion: no-preference) {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
+@media screen and (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Fix para parallax que pode causar problemas */
+.hero {
+    transform: translate3d(0, 0, 0);
+}
+
+/* Melhorar performance do scroll em elementos grandes */
+.hero-section,
+.services-section,
+.testimonials-section {
+    will-change: transform;
+    contain: layout style paint;
+}
+
+/* Fix para iOS Safari */
+@supports (-webkit-overflow-scrolling: touch) {
+    body {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Garantir que âncoras funcionem corretamente */
+[id] {
+    scroll-margin-top: 100px;
+}
+
+/* Fix para smooth scroll em elementos específicos */
+.navbar-nav .nav-link,
+a[href^="#"] {
+    will-change: transform;
+}
+
+/* Otimização para GPU */
+.wp-resgate-loaded * {
+    -webkit-transform: translateZ(0);
+    -moz-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    -o-transform: translateZ(0);
+    transform: translateZ(0);
+}
+
+/* Debug para desenvolvimento */
+@media screen and (max-width: 768px) {
+    body {
+        -webkit-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+    }
+}
+
+/* Correção específica para formulários que podem interferir no scroll */
+form {
+    contain: layout style;
+}
+
+/* Fix para elementos fixed que podem causar lag */
+.floating-whatsapp,
+.navbar.fixed-top {
+    contain: layout style paint;
+    will-change: transform;
+}
