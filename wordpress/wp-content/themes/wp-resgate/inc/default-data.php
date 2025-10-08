@@ -211,6 +211,85 @@ function wp_resgate_insert_default_client_logos() {
 }
 
 /**
+ * Dados iniciais para CPT FAQ
+ * Insere dados apenas se não existirem FAQs cadastradas
+ */
+function wp_resgate_insert_default_faqs() {
+    // Verificar se já existem FAQs
+    $existing_faqs = get_posts([
+        'post_type' => 'faq',
+        'posts_per_page' => 1,
+        'post_status' => 'any'
+    ]);
+
+    // Se já existem FAQs, não inserir dados padrão
+    if (!empty($existing_faqs)) {
+        return;
+    }
+
+    $default_faqs = [
+        [
+            'title' => 'FAQ - Tempo de resolução',
+            'question' => 'Quanto tempo leva para resolver?',
+            'answer' => 'Depende da complexidade — fazemos diagnóstico gratuito para estimar prazo e custo com precisão.',
+            'expanded' => '1',
+            'menu_order' => 1
+        ],
+        [
+            'title' => 'FAQ - Acesso e senhas',
+            'question' => 'Vocês mexem em senhas/FTP?',
+            'answer' => 'Sim — sempre com autorização e seguindo boas práticas de segurança. Podemos criar acessos temporários.',
+            'expanded' => '0',
+            'menu_order' => 2
+        ],
+        [
+            'title' => 'FAQ - Garantia',
+            'question' => 'E se o problema voltar?',
+            'answer' => 'Incluímos ações preventivas e oferecemos planos de manutenção para reduzir muito essa chance.',
+            'expanded' => '0',
+            'menu_order' => 3
+        ],
+        [
+            'title' => 'FAQ - Custo dos serviços',
+            'question' => 'Qual o custo dos serviços?',
+            'answer' => 'Cada caso é único. Por isso oferecemos diagnóstico gratuito com orçamento transparente e sem surpresas.',
+            'expanded' => '0',
+            'menu_order' => 4
+        ],
+        [
+            'title' => 'FAQ - Backup',
+            'question' => 'Fazem backup antes de mexer no site?',
+            'answer' => 'Sempre! É o primeiro passo obrigatório. Trabalhamos em ambiente seguro e só aplicamos mudanças após testes.',
+            'expanded' => '0',
+            'menu_order' => 5
+        ],
+        [
+            'title' => 'FAQ - Atendimento internacional',
+            'question' => 'Atendem sites em outros idiomas/países?',
+            'answer' => 'Sim, trabalhamos com sites WordPress em qualquer idioma e localização. O atendimento é em português ou inglês.',
+            'expanded' => '0',
+            'menu_order' => 6
+        ]
+    ];
+
+    foreach ($default_faqs as $faq_data) {
+        $post_id = wp_insert_post([
+            'post_title' => $faq_data['title'],
+            'post_status' => 'publish',
+            'post_type' => 'faq',
+            'post_author' => 1,
+            'menu_order' => $faq_data['menu_order']
+        ]);
+
+        if ($post_id && !is_wp_error($post_id)) {
+            update_post_meta($post_id, '_faq_question', $faq_data['question']);
+            update_post_meta($post_id, '_faq_answer', $faq_data['answer']);
+            update_post_meta($post_id, '_faq_expanded', $faq_data['expanded']);
+        }
+    }
+}
+
+/**
  * Dados iniciais para CPT Testimonials
  * Insere dados apenas se não existirem depoimentos cadastrados
  */
@@ -281,6 +360,7 @@ add_action('after_switch_theme', 'wp_resgate_insert_default_process_steps');
 add_action('after_switch_theme', 'wp_resgate_insert_default_testimonials');
 add_action('after_switch_theme', 'wp_resgate_insert_default_services');
 add_action('after_switch_theme', 'wp_resgate_insert_default_client_logos');
+add_action('after_switch_theme', 'wp_resgate_insert_default_faqs');
 
 add_action('init', function() {
     if (get_option('wp_resgate_process_steps_created') !== 'yes') {
@@ -301,6 +381,11 @@ add_action('init', function() {
     if (get_option('wp_resgate_client_logos_created') !== 'yes') {
         wp_resgate_insert_default_client_logos();
         update_option('wp_resgate_client_logos_created', 'yes');
+    }
+    
+    if (get_option('wp_resgate_faqs_created') !== 'yes') {
+        wp_resgate_insert_default_faqs();
+        update_option('wp_resgate_faqs_created', 'yes');
     }
 }, 99);
 ?>
