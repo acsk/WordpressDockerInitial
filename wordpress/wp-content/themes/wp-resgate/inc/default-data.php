@@ -59,6 +59,86 @@ function wp_resgate_insert_default_process_steps() {
 }
 
 /**
+ * Dados iniciais para CPT Services
+ * Insere dados apenas se não existirem serviços cadastrados
+ */
+function wp_resgate_insert_default_services() {
+    // Verificar se já existem serviços
+    $existing_services = get_posts([
+        'post_type' => 'service',
+        'posts_per_page' => 1,
+        'post_status' => 'any'
+    ]);
+
+    // Se já existem serviços, não inserir dados padrão
+    if (!empty($existing_services)) {
+        return;
+    }
+
+    $default_services = [
+        [
+            'title' => 'Remoção de malware',
+            'content' => 'Serviço especializado em limpeza completa de sites WordPress infectados por malware. Incluímos:\n\n• Análise detalhada de todos os arquivos\n• Remoção completa de códigos maliciosos\n• Limpeza de backdoors e scripts ocultos\n• Restauração de arquivos corrompidos\n• Hardening de segurança pós-limpeza\n• Monitoramento por 30 dias\n• Blacklist removal (Google, McAfee, etc.)\n\nGarantimos que seu site ficará 100% limpo e protegido contra futuras invasões.',
+            'excerpt' => 'Limpeza pós-hack, restauração de arquivos e reforço de segurança (hardening).',
+            'icon' => 'bi-bug',
+            'color' => 'danger',
+            'price' => 'A partir de R$ 250',
+            'featured' => '1',
+            'menu_order' => 1
+        ],
+        [
+            'title' => 'Correção de bugs',
+            'content' => 'Identificação e correção de problemas técnicos em sites WordPress:\n\n• Erros 500, 502, 503 e outros códigos HTTP\n• Conflitos entre plugins e temas\n• Problemas após atualizações\n• Erros de PHP e MySQL\n• Tela branca da morte (WSOD)\n• Problemas de carregamento\n• Funcionalidades quebradas\n\nNossa equipe experiente resolve qualquer bug rapidamente, mantendo seu site funcionando perfeitamente.',
+            'excerpt' => 'Erros 500/502, conflitos de plugins/tema e falhas após atualização.',
+            'icon' => 'bi-tools',
+            'color' => 'warning',
+            'price' => 'A partir de R$ 150',
+            'featured' => '0',
+            'menu_order' => 2
+        ],
+        [
+            'title' => 'Migração segura',
+            'content' => 'Transferência completa e segura do seu site WordPress:\n\n• Migração entre hospedagens\n• Mudança de domínio\n• Transferência de servidor local para produção\n• Preservação total do SEO\n• Zero downtime durante a migração\n• Backup completo antes do processo\n• Testes extensivos pós-migração\n• Configuração de DNS e SSL\n\nSeu site será transferido sem perder posicionamento no Google ou funcionalidades.',
+            'excerpt' => 'Transferência sem perda de conteúdo ou SEO, com checklist pós-migração.',
+            'icon' => 'bi-arrow-left-right',
+            'color' => 'info',
+            'price' => 'A partir de R$ 200',
+            'featured' => '1',
+            'menu_order' => 3
+        ],
+        [
+            'title' => 'Otimização de performance',
+            'content' => 'Acelere seu site WordPress para máxima performance:\n\n• Otimização de imagens e arquivos\n• Configuração de cache avançado\n• Minificação de CSS, JS e HTML\n• Otimização de banco de dados\n• CDN setup e configuração\n• Lazy loading de conteúdo\n• Core Web Vitals optimization\n• Melhoria do PageSpeed Score\n\nSeu site ficará até 300% mais rápido, melhorando SEO e conversões.',
+            'excerpt' => 'Otimização de carregamento, cache, imagens e Core Web Vitals.',
+            'icon' => 'bi-speedometer2',
+            'color' => 'success',
+            'price' => 'A partir de R$ 180',
+            'featured' => '0',
+            'menu_order' => 4
+        ]
+    ];
+
+    foreach ($default_services as $service_data) {
+        $post_id = wp_insert_post([
+            'post_title' => $service_data['title'],
+            'post_content' => $service_data['content'],
+            'post_excerpt' => $service_data['excerpt'],
+            'post_status' => 'publish',
+            'post_type' => 'service',
+            'post_author' => 1,
+            'menu_order' => $service_data['menu_order']
+        ]);
+
+        if ($post_id && !is_wp_error($post_id)) {
+            update_post_meta($post_id, '_service_icon', $service_data['icon']);
+            update_post_meta($post_id, '_service_color', $service_data['color']);
+            update_post_meta($post_id, '_service_price_from', $service_data['price']);
+            update_post_meta($post_id, '_service_featured', $service_data['featured']);
+        }
+    }
+}
+
+/**
  * Dados iniciais para CPT Testimonials
  * Insere dados apenas se não existirem depoimentos cadastrados
  */
@@ -127,6 +207,7 @@ function wp_resgate_insert_default_testimonials() {
 // Executar após ativação do tema ou quando CPT for registrado
 add_action('after_switch_theme', 'wp_resgate_insert_default_process_steps');
 add_action('after_switch_theme', 'wp_resgate_insert_default_testimonials');
+add_action('after_switch_theme', 'wp_resgate_insert_default_services');
 
 add_action('init', function() {
     if (get_option('wp_resgate_process_steps_created') !== 'yes') {
@@ -137,6 +218,11 @@ add_action('init', function() {
     if (get_option('wp_resgate_testimonials_created') !== 'yes') {
         wp_resgate_insert_default_testimonials();
         update_option('wp_resgate_testimonials_created', 'yes');
+    }
+    
+    if (get_option('wp_resgate_services_created') !== 'yes') {
+        wp_resgate_insert_default_services();
+        update_option('wp_resgate_services_created', 'yes');
     }
 }, 99);
 ?>
