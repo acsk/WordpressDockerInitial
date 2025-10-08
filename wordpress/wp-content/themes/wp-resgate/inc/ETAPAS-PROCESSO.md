@@ -15,7 +15,10 @@ O Custom Post Type **"Etapas do Processo"** permite gerenciar facilmente as etap
 ### Passo 1: Criar a Etapa
 1. Clique em **"Adicionar Nova"**
 2. Preencha o **título** da etapa (ex: "Diagnóstico gratuito")
-3. Adicione o **conteúdo** detalhado (opcional, para futuras expansões)
+3. Adicione o **conteúdo completo** no editor principal - este conteúdo aparecerá no site
+   - Use listas com • ou números para organizar informações
+   - Adicione parágrafos para separar ideias
+   - Destaque pontos importantes com **negrito**
 
 ### Passo 2: Configurar Detalhes
 Na seção **"Detalhes da Etapa"**:
@@ -23,7 +26,7 @@ Na seção **"Detalhes da Etapa"**:
 - **Número da Etapa**: Digite o número que aparecerá (1, 2, 3, etc.)
 - **Ícone Bootstrap**: Escolha um ícone do [Bootstrap Icons](https://icons.getbootstrap.com/)
   - Exemplos: `bi-clipboard2-pulse`, `bi-shield-check`, `bi-check-circle`
-- **Descrição Resumida**: Texto que aparece abaixo do título no site
+- **Descrição Resumida**: Resumo da etapa (aparece apenas no admin, não no site)
 
 ### Passo 3: Publicar
 1. Clique em **"Publicar"**
@@ -70,8 +73,11 @@ As etapas são ordenadas automaticamente pelo **número da etapa**. Para reorden
 ### Boas Práticas
 - Use números sequenciais (1, 2, 3...)
 - Escolha ícones que representem bem cada etapa
-- Mantenha descrições concisas (máximo 2 linhas)
 - Use títulos claros e objetivos
+- **Conteúdo completo**: Adicione detalhes ricos no editor principal
+- **Formatação**: Use listas (• ou números) para organizar informações
+- **Parágrafos**: Separe ideias em parágrafos curtos para melhor leitura
+- **Destaques**: Use **negrito** para pontos importantes
 
 ### Exemplos de Etapas
 ```
@@ -92,14 +98,22 @@ $steps = wp_resgate_get_process_steps();
 [
     'number' => '1',
     'title' => 'Título da Etapa',
-    'description' => 'Descrição resumida',
+    'description' => 'Descrição resumida (admin apenas)',
     'icon' => 'bi-clipboard2-pulse',
-    'content' => 'Conteúdo completo'
+    'content' => 'Conteúdo completo exibido no site'
 ]
 ```
 
+**Importante**: O site agora exibe o `content` (conteúdo completo) em vez da `description` (resumo).
+
 ### Template
-O template automaticamente busca e exibe as etapas do banco de dados. Se não houver etapas cadastradas, usa dados padrão como fallback.
+O template automaticamente busca e exibe as etapas do banco de dados, mostrando o **conteúdo completo** de cada etapa. Se não houver etapas cadastradas, usa dados padrão detalhados como fallback.
+
+**Formatação Suportada**:
+- Parágrafos automáticos
+- Listas com • ou números
+- **Texto em negrito**
+- Quebras de linha
 
 ## 🆘 Solução de Problemas
 
