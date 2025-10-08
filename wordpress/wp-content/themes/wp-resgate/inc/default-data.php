@@ -139,6 +139,78 @@ function wp_resgate_insert_default_services() {
 }
 
 /**
+ * Dados iniciais para CPT Client Logos
+ * Insere dados apenas se não existirem logos cadastrados
+ */
+function wp_resgate_insert_default_client_logos() {
+    // Verificar se já existem logos
+    $existing_logos = get_posts([
+        'post_type' => 'client_logo',
+        'posts_per_page' => 1,
+        'post_status' => 'any'
+    ]);
+
+    // Se já existem logos, não inserir dados padrão
+    if (!empty($existing_logos)) {
+        return;
+    }
+
+    $default_logos = [
+        [
+            'title' => 'TechCorp Soluções',
+            'description' => 'Tecnologia',
+            'alt_text' => 'Logo TechCorp Soluções',
+            'website' => '',
+            'menu_order' => 1
+        ],
+        [
+            'title' => 'EduLearn Online',
+            'description' => 'Educação',
+            'alt_text' => 'Logo EduLearn Online',
+            'website' => '',
+            'menu_order' => 2
+        ],
+        [
+            'title' => 'HealthCare Plus',
+            'description' => 'Saúde',
+            'alt_text' => 'Logo HealthCare Plus',
+            'website' => '',
+            'menu_order' => 3
+        ],
+        [
+            'title' => 'Fashion Store',
+            'description' => 'E-commerce',
+            'alt_text' => 'Logo Fashion Store',
+            'website' => '',
+            'menu_order' => 4
+        ],
+        [
+            'title' => 'Consultoria Pro',
+            'description' => 'Consultoria',
+            'alt_text' => 'Logo Consultoria Pro',
+            'website' => '',
+            'menu_order' => 5
+        ]
+    ];
+
+    foreach ($default_logos as $logo_data) {
+        $post_id = wp_insert_post([
+            'post_title' => $logo_data['title'],
+            'post_status' => 'publish',
+            'post_type' => 'client_logo',
+            'post_author' => 1,
+            'menu_order' => $logo_data['menu_order']
+        ]);
+
+        if ($post_id && !is_wp_error($post_id)) {
+            update_post_meta($post_id, '_client_description', $logo_data['description']);
+            update_post_meta($post_id, '_logo_alt_text', $logo_data['alt_text']);
+            update_post_meta($post_id, '_client_website', $logo_data['website']);
+        }
+    }
+}
+
+/**
  * Dados iniciais para CPT Testimonials
  * Insere dados apenas se não existirem depoimentos cadastrados
  */
@@ -208,6 +280,7 @@ function wp_resgate_insert_default_testimonials() {
 add_action('after_switch_theme', 'wp_resgate_insert_default_process_steps');
 add_action('after_switch_theme', 'wp_resgate_insert_default_testimonials');
 add_action('after_switch_theme', 'wp_resgate_insert_default_services');
+add_action('after_switch_theme', 'wp_resgate_insert_default_client_logos');
 
 add_action('init', function() {
     if (get_option('wp_resgate_process_steps_created') !== 'yes') {
@@ -223,6 +296,11 @@ add_action('init', function() {
     if (get_option('wp_resgate_services_created') !== 'yes') {
         wp_resgate_insert_default_services();
         update_option('wp_resgate_services_created', 'yes');
+    }
+    
+    if (get_option('wp_resgate_client_logos_created') !== 'yes') {
+        wp_resgate_insert_default_client_logos();
+        update_option('wp_resgate_client_logos_created', 'yes');
     }
 }, 99);
 ?>
