@@ -2,7 +2,13 @@
 
 ## 📋 Visão Geral
 
-O Custom Post Type **"Logos de Clientes"** permite gerenciar facilmente os logos que aparecem na seção de prova social do seu site, diretamente pelo painel do WordPress.
+### Especificações Técnicas
+
+### Tamanhos Recomendados
+- **Ideal**: 200x80px (proporção 2.5:1)
+- **Mínimo**: 160x64px
+- **Máximo**: 300x120px
+- **Exibição no site**: 80px altura máxima (desktop), 65px (mobile)om Post Type **"Logos de Clientes"** permite gerenciar facilmente os logos que aparecem na seção de prova social do seu site, diretamente pelo painel do WordPress.
 
 ## 🚀 Como Acessar
 
