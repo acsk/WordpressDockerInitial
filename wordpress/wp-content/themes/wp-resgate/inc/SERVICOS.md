@@ -31,6 +31,7 @@ Na seção **"Detalhes do Serviço"**:
   - Azul (padrão), Verde, Laranja, Vermelho, Ciano, Cinza
 - **Preço "A partir de"**: Preço inicial (ex: "R$ 150", "Consulte")
 - **Serviço em Destaque**: Marque para destacar serviços principais
+- **Texto da Badge**: Texto personalizado para a badge (ex: "Popular", "Urgente", "Novo")
 - **Descrição Resumida**: Texto curto para o card (máximo 2 linhas)
 
 ### Passo 3: Ordenação
@@ -63,10 +64,19 @@ A listagem mostra:
 
 ### Como Funciona
 - Serviços marcados como **"Destaque"** recebem:
-  - Badge "Popular" no canto superior direito
+  - Badge personalizada no canto superior direito
+  - Background gradiente sutil
   - Borda colorida diferenciada
   - Barra gradiente no topo do card
   - Maior destaque visual
+
+### Textos de Badge Personalizados
+- **Popular** - Para serviços mais procurados
+- **Urgente** - Para serviços de emergência (malware, hacks)
+- **Novo** - Para serviços recém-lançados
+- **Recomendado** - Para serviços que você quer destacar
+- **Promoção** - Para serviços em oferta
+- **Premium** - Para serviços de alto valor
 
 ### Estratégia Recomendada
 - Marque **1-2 serviços principais** como destaque
@@ -203,7 +213,8 @@ $services = wp_resgate_get_services();
     'icon' => 'bi-bug',
     'color' => 'danger',
     'price' => 'A partir de R$ 250',
-    'featured' => true
+    'featured' => true,
+    'badge_text' => 'Popular'
 ]
 ```
 
@@ -212,6 +223,7 @@ $services = wp_resgate_get_services();
 - `_service_color`: Cor do ícone (primary, success, etc.)
 - `_service_price_from`: Preço inicial
 - `_service_featured`: Serviço em destaque (1 ou vazio)
+- `_service_badge_text`: Texto personalizado da badge
 
 ### Ordenação
 - Por `menu_order` (campo "Ordem" no admin)
