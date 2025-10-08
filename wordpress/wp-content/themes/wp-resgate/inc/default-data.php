@@ -58,12 +58,85 @@ function wp_resgate_insert_default_process_steps() {
     }
 }
 
+/**
+ * Dados iniciais para CPT Testimonials
+ * Insere dados apenas se não existirem depoimentos cadastrados
+ */
+function wp_resgate_insert_default_testimonials() {
+    // Verificar se já existem depoimentos
+    $existing_testimonials = get_posts([
+        'post_type' => 'testimonial',
+        'posts_per_page' => 1,
+        'post_status' => 'any'
+    ]);
+
+    // Se já existem depoimentos, não inserir dados padrão
+    if (!empty($existing_testimonials)) {
+        return;
+    }
+
+    $default_testimonials = [
+        [
+            'title' => 'Depoimento - Maria Silva',
+            'content' => 'Estava desesperada com meu e-commerce invadido por malware. A equipe do WP Resgate não só limpou tudo em menos de 24h, como ainda otimizou a performance do site. Agora minhas vendas aumentaram 40%! Atendimento excepcional e muito transparente.',
+            'client_name' => 'Maria Silva',
+            'client_company' => 'E-commerce de Moda',
+            'client_website' => '',
+            'rating' => '5',
+            'featured' => '1'
+        ],
+        [
+            'title' => 'Depoimento - João Santos',
+            'content' => 'Precisava migrar meu site educacional para um servidor melhor e estava com medo de perder o posicionamento no Google. A migração foi perfeita, sem perder uma única posição no SEO. Inclusive, o site ficou mais rápido! Recomendo demais.',
+            'client_name' => 'João Santos',
+            'client_company' => 'Cursos Online',
+            'client_website' => '',
+            'rating' => '5',
+            'featured' => '1'
+        ],
+        [
+            'title' => 'Depoimento - Ana Costa',
+            'content' => 'Meu WordPress vivia com erros 500 e eu não sabia o que fazer. Encontrei o WP Resgate e foi a melhor decisão! Resolveram todos os conflitos entre plugins, otimizaram o banco de dados e ainda me ensinaram como prevenir problemas futuros.',
+            'client_name' => 'Ana Costa',
+            'client_company' => 'Consultoria Empresarial',
+            'client_website' => '',
+            'rating' => '5',
+            'featured' => '0'
+        ]
+    ];
+
+    foreach ($default_testimonials as $testimonial_data) {
+        $post_id = wp_insert_post([
+            'post_title' => $testimonial_data['title'],
+            'post_content' => $testimonial_data['content'],
+            'post_status' => 'publish',
+            'post_type' => 'testimonial',
+            'post_author' => 1
+        ]);
+
+        if ($post_id && !is_wp_error($post_id)) {
+            update_post_meta($post_id, '_client_name', $testimonial_data['client_name']);
+            update_post_meta($post_id, '_client_company', $testimonial_data['client_company']);
+            update_post_meta($post_id, '_client_website', $testimonial_data['client_website']);
+            update_post_meta($post_id, '_rating', $testimonial_data['rating']);
+            update_post_meta($post_id, '_featured', $testimonial_data['featured']);
+        }
+    }
+}
+
 // Executar após ativação do tema ou quando CPT for registrado
 add_action('after_switch_theme', 'wp_resgate_insert_default_process_steps');
+add_action('after_switch_theme', 'wp_resgate_insert_default_testimonials');
+
 add_action('init', function() {
     if (get_option('wp_resgate_process_steps_created') !== 'yes') {
         wp_resgate_insert_default_process_steps();
         update_option('wp_resgate_process_steps_created', 'yes');
+    }
+    
+    if (get_option('wp_resgate_testimonials_created') !== 'yes') {
+        wp_resgate_insert_default_testimonials();
+        update_option('wp_resgate_testimonials_created', 'yes');
     }
 }, 99);
 ?>
