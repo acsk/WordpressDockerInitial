@@ -126,7 +126,7 @@ define( 'WP_CACHE_KEY_SALT', 'wpresgate_' );
  */
 
 // Configurações para sistema de leads
-define( 'WP_RESGATE_VERSION', '1.0' );
+// Nota: WP_RESGATE_VERSION está definida no functions.php do tema
 define( 'WP_RESGATE_LEADS_TABLE', 'wp_resgate_leads' );
 
 // Configurações Google Sheets (já configuradas no tema)
