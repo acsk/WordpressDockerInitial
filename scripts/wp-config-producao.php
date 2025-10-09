@@ -127,7 +127,7 @@ define( 'WP_CACHE_KEY_SALT', 'wpresgate_' );
 
 // Configurações para sistema de leads
 define( 'WP_RESGATE_VERSION', '1.0' );
-define( 'WP_RESGATE_LEADS_TABLE', 'wp_wp_resgate_leads' );
+define( 'WP_RESGATE_LEADS_TABLE', 'wp_resgate_leads' );
 
 // Configurações Google Sheets (já configuradas no tema)
 // Webhook: https://script.google.com/macros/s/AKfycbzQwVfcbdBq9GPuXAWLgHX0DPaWKPFUxX_3dcJPqegxsJdnC9mo6TmhfO0lW7qEAdWR9g/exec
