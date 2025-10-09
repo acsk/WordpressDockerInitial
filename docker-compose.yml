@@ -46,7 +46,7 @@ services:
       PHP_UPLOAD_MAX_FILESIZE: 32M
       PHP_POST_MAX_SIZE: 32M
     volumes:
-      - ./wordpress:/var/www/html
+      - .:/var/www/html
       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - wordpress_network

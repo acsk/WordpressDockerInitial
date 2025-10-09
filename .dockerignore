@@ -1,0 +1,14 @@
+# Ignorar arquivos desnecessários no container Docker
+.git
+.gitignore
+*.md
+DOCS/
+mysql-data/
+.DS_Store
+.vscode/
+docker-compose.yml
+.env
+.env.example
+*.gs
+prepare-hosting.sh
+setup-local-folders.sh
