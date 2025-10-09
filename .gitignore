@@ -24,8 +24,8 @@ Thumbs.db
 # Configurações locais
 wp-config-docker.php
 
-# Pastas organizacionais (não são WordPress)
-scripts/
+# Pastas organizacionais (ignorar apenas no deploy automático)
+# scripts/ - manteremos no Git para documentação
 google-apps-script/
 docs/
 
