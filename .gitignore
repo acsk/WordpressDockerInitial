@@ -24,6 +24,11 @@ Thumbs.db
 # Configurações locais
 wp-config-docker.php
 
+# Pastas organizacionais (não são WordPress)
+scripts/
+google-apps-script/
+docs/
+
 # IDEs
 .vscode/
 .idea/
