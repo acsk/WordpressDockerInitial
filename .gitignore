@@ -1,15 +1,17 @@
-# Arquivo de variáveis de ambiente (contém senhas)
+# Docker (local apenas)
+docker-compose.yml
 .env
+uploads.ini
+mysql-data/
+mysql_data/
+wordpress_data/
 
-# Dados dos volumes Docker
-/mysql_data/
-/wordpress_data/
+# Configurações específicas do servidor
+wp-config.php
 
-# Logs
+# Arquivos temporários
 *.log
 logs/
-
-# Sistema operacional
 .DS_Store
 .DS_Store?
 ._*
@@ -17,6 +19,10 @@ logs/
 .Trashes
 ehthumbs.db
 Thumbs.db
+.vscode/
+
+# Configurações locais
+wp-config-docker.php
 
 # IDEs
 .vscode/
