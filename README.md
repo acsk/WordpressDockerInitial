@@ -286,4 +286,4 @@ docker-compose up -d
 Para problemas ou dúvidas, verifique:
 - Logs dos containers
 - Documentação oficial do WordPress
-- Issues do projeto no GitHub
+- Issues do projeto no GitHub# Deploy automático funcionando - Qui  9 Out 2025 16:36:51 -03
