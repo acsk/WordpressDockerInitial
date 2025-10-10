@@ -21,11 +21,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
         <div class="row align-items-center g-5 py-4">
             <div class="col-12 col-lg-6">
                 <div class="hero-content" data-aos="fade-right">
-                    <span class="hero-badge badge bg-white rounded-pill mb-4 px-4 py-2">
-                        <i class="bi bi-shield-check text-primary me-2"></i>
-                        <span class="text-primary fw-bold"><?php echo esc_html($hero_badge); ?></span>
-                    </span>
-
+            
                     <h1 class="hero-title display-4 fw-bold lh-1 mb-4 text-white">
                         <?php echo wp_kses_post($hero_title); ?>
                     </h1>
