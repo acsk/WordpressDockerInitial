@@ -245,23 +245,6 @@
             $button.addClass('loading').prop('disabled', true);
             $result.hide().removeClass('success error');
             
-            // Dados de teste
-            const testData = {
-                values: [[
-                    new Date().toLocaleString('pt-BR'),
-                    'Teste Integração',
-                    'teste@wpresgate.com',
-                    '(11) 99999-9999',
-                    'https://exemplo.com',
-                    'Teste',
-                    'Baixa',
-                    'Este é um teste da integração com Google Sheets',
-                    'admin_test',
-                    '127.0.0.1',
-                    window.location.href
-                ]]
-            };
-            
             // Fazer requisição para o webhook
             const webhookUrl = $('input[name="webhook_url"]').val();
             
@@ -272,13 +255,27 @@
             }
             
             $.ajax({
-                url: webhookUrl,
+                url: wpResgateAdmin.ajax_url,
                 type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(testData),
+                dataType: 'json',
                 timeout: 30000,
+                data: {
+                    action: 'wp_resgate_test_webhook',
+                    nonce: wpResgateAdmin.nonce,
+                    webhook_url: webhookUrl
+                },
                 success: (response) => {
-                    $result.addClass('success').text('✅ Integração funcionando! Dados enviados para Google Sheets com sucesso.').show();
+                    if (response && response.success) {
+                        const message = response.data && response.data.message
+                            ? response.data.message
+                            : 'Integração funcionando! Dados enviados com sucesso.';
+                        $result.addClass('success').text(`✅ ${message}`).show();
+                    } else {
+                        const errorMessage = response && response.data && response.data.message
+                            ? response.data.message
+                            : 'Erro desconhecido';
+                        $result.addClass('error').text(`❌ Erro na integração: ${errorMessage}`).show();
+                    }
                 },
                 error: (xhr, status, error) => {
                     let errorMessage = '❌ Erro na integração: ';

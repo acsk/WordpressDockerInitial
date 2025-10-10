@@ -13,6 +13,7 @@ class WP_Resgate_Leads_Admin {
         add_action('wp_ajax_wp_resgate_update_lead_urgency', array($this, 'update_lead_urgency'));
         add_action('wp_ajax_wp_resgate_delete_lead', array($this, 'delete_lead'));
         add_action('wp_ajax_wp_resgate_export_leads', array($this, 'export_leads'));
+        add_action('wp_ajax_wp_resgate_test_webhook', array($this, 'test_webhook'));
         add_action('admin_post_wp_resgate_bulk_action', array($this, 'handle_bulk_actions'));
     }
     
@@ -762,6 +763,73 @@ class WP_Resgate_Leads_Admin {
             </div>
         </div>
         <?php
+    }
+    
+    /**
+     * Testar integração com o webhook via AJAX.
+     */
+    public function test_webhook() {
+        check_ajax_referer('wp_resgate_admin_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => __('Permissão negada.', 'wp-resgate')));
+        }
+
+        $webhook_url = isset($_POST['webhook_url']) ? esc_url_raw(wp_unslash($_POST['webhook_url'])) : '';
+
+        if (empty($webhook_url)) {
+            wp_send_json_error(array('message' => __('URL do webhook não configurada.', 'wp-resgate')));
+        }
+
+        $timestamp = current_time('mysql');
+        $payload = array(
+            'action' => 'test_integration',
+            'hash_id' => md5(uniqid('wp_resgate_test', true)),
+            'lead_id' => 0,
+            'timestamp' => $timestamp,
+            'name' => 'Teste Integração',
+            'email' => 'teste@wpresgate.com',
+            'phone' => '(11) 99999-9999',
+            'website' => home_url(),
+            'problem_type' => 'Teste',
+            'urgency' => 'Baixa',
+            'description' => 'Teste automatizado do painel WP Resgate.',
+            'status' => 'test',
+            'created_at' => $timestamp,
+            'updated_at' => $timestamp,
+        );
+
+        $sslverify = apply_filters('wp_resgate_webhook_sslverify', !wp_resgate_is_local_environment());
+
+        $response = wp_remote_post($webhook_url, array(
+            'headers' => array(
+                'Content-Type' => 'application/json',
+            ),
+            'body' => wp_json_encode($payload),
+            'timeout' => 30,
+            'sslverify' => $sslverify,
+        ));
+
+        if (is_wp_error($response)) {
+            $error_message = $response->get_error_message();
+            error_log('WP Resgate - Teste de integração falhou: ' . $error_message);
+
+            wp_send_json_error(array('message' => $error_message));
+        }
+
+        $code = wp_remote_retrieve_response_code($response);
+        $body = wp_remote_retrieve_body($response);
+        error_log(sprintf('WP Resgate - Teste webhook resposta (HTTP %1$d): %2$s', $code, $body));
+
+        if ($code >= 200 && $code < 300) {
+            wp_send_json_success(array(
+                'message' => __('Integração funcionando! Dados de teste enviados com sucesso.', 'wp-resgate'),
+                'response' => $body,
+            ));
+        }
+
+        $formatted_message = sprintf(__('Resposta inesperada do webhook (HTTP %1$d): %2$s', 'wp-resgate'), $code, $body);
+        wp_send_json_error(array('message' => $formatted_message));
     }
     
     /**
