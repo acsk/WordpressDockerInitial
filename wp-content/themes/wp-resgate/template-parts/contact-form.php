@@ -4,6 +4,8 @@
  *
  * @package WP_Resgate
  */
+
+$recaptcha_site_key = get_theme_mod('wp_resgate_recaptcha_site_key', '');
 ?>
 
 <!-- CTA FINAL / FORM -->
@@ -174,6 +176,12 @@
                                     </div>
                                 </div>
                                 
+                                <?php if ($recaptcha_site_key) : ?>
+                                <div class="col-12">
+                                    <div class="g-recaptcha" data-sitekey="<?php echo esc_attr($recaptcha_site_key); ?>"></div>
+                                </div>
+                                <?php endif; ?>
+
                                 <div class="col-12 d-grid">
                                     <button type="submit" 
                                             class="btn btn-primary btn-lg submit-btn form-btn">

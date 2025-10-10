@@ -54,6 +54,11 @@
                 return;
             }
             
+            if (typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) {
+                this.showMessage(wpResgateForm.messages.recaptcha, 'error');
+                return;
+            }
+
             this.setLoading(true);
             
             const formData = new FormData(this.form[0]);
@@ -68,7 +73,13 @@
                 contentType: false,
                 success: (response) => this.handleSuccess(response),
                 error: (xhr, status, error) => this.handleError(xhr, status, error),
-                complete: () => this.setLoading(false)
+                complete: () => {
+                    this.setLoading(false);
+
+                    if (typeof grecaptcha !== 'undefined') {
+                        grecaptcha.reset();
+                    }
+                }
             });
         }
         

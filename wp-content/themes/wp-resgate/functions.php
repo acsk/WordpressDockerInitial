@@ -124,6 +124,10 @@ function wp_resgate_scripts() {
         );
     }
 
+    if (wp_resgate_is_recaptcha_enabled()) {
+        wp_enqueue_script('google-recaptcha');
+    }
+
     // Localização para AJAX
     wp_localize_script('wp-resgate-script', 'wpResgate', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -136,6 +140,151 @@ function wp_resgate_scripts() {
     ]);
 }
 add_action('wp_enqueue_scripts', 'wp_resgate_scripts');
+
+/**
+ * Recupera as chaves configuradas do reCAPTCHA.
+ *
+ * @return array{site_key:string,secret_key:string}
+ */
+function wp_resgate_get_recaptcha_keys() {
+    return [
+        'site_key' => trim((string) get_theme_mod('wp_resgate_recaptcha_site_key', '')),
+        'secret_key' => trim((string) get_theme_mod('wp_resgate_recaptcha_secret_key', '')),
+    ];
+}
+
+/**
+ * Verifica se o reCAPTCHA está configurado.
+ */
+function wp_resgate_is_recaptcha_enabled() {
+    $keys = wp_resgate_get_recaptcha_keys();
+
+    return $keys['site_key'] !== '' && $keys['secret_key'] !== '';
+}
+
+/**
+ * Registra o script do reCAPTCHA para reutilização no front-end e tela de login.
+ */
+function wp_resgate_register_recaptcha_script() {
+    if (!wp_resgate_is_recaptcha_enabled()) {
+        return;
+    }
+
+    $locale = determine_locale();
+    $locale = $locale ? str_replace('_', '-', $locale) : '';
+    $script_url = 'https://www.google.com/recaptcha/api.js';
+
+    if ($locale) {
+        $script_url = add_query_arg(['hl' => $locale], $script_url);
+    }
+
+    wp_register_script('google-recaptcha', $script_url, [], null, true);
+    wp_script_add_data('google-recaptcha', 'async', true);
+    wp_script_add_data('google-recaptcha', 'defer', true);
+}
+add_action('init', 'wp_resgate_register_recaptcha_script');
+
+/**
+ * Enfileira o reCAPTCHA na tela de login.
+ */
+function wp_resgate_login_enqueue_recaptcha() {
+    if (!wp_resgate_is_recaptcha_enabled()) {
+        return;
+    }
+
+    wp_enqueue_script('google-recaptcha');
+}
+add_action('login_enqueue_scripts', 'wp_resgate_login_enqueue_recaptcha');
+
+/**
+ * Renderiza o widget do reCAPTCHA na tela de login.
+ */
+function wp_resgate_render_login_recaptcha() {
+    if (!wp_resgate_is_recaptcha_enabled()) {
+        return;
+    }
+
+    $keys = wp_resgate_get_recaptcha_keys();
+
+    echo '<p class="login-recaptcha">';
+    echo '<div class="g-recaptcha" data-sitekey="' . esc_attr($keys['site_key']) . '"></div>';
+    echo '</p>';
+}
+add_action('login_form', 'wp_resgate_render_login_recaptcha');
+
+/**
+ * Valida o reCAPTCHA durante a autenticação de login do WordPress.
+ *
+ * @param WP_User|WP_Error|null $user
+ * @param string $username
+ * @param string $password
+ * @return WP_User|WP_Error|null
+ */
+function wp_resgate_verify_login_recaptcha($user, $username, $password) {
+    if (!wp_resgate_is_recaptcha_enabled()) {
+        return $user;
+    }
+
+    if (!isset($_POST['log'])) {
+        return $user;
+    }
+
+    if (is_wp_error($user) && $user->get_error_codes()) {
+        return $user;
+    }
+
+    $token = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
+
+    if ($token === '') {
+        return new WP_Error('recaptcha_missing', __('Confirme que você não é um robô para continuar.', 'wp-resgate'));
+    }
+
+    if (!wp_resgate_verify_recaptcha($token)) {
+        return new WP_Error('recaptcha_failed', __('Falha na verificação do reCAPTCHA. Tente novamente.', 'wp-resgate'));
+    }
+
+    return $user;
+}
+add_filter('authenticate', 'wp_resgate_verify_login_recaptcha', 21, 3);
+
+/**
+ * Valida um token do reCAPTCHA junto à API do Google.
+ */
+function wp_resgate_verify_recaptcha($token) {
+    if (!wp_resgate_is_recaptcha_enabled()) {
+        return true;
+    }
+
+    $token = trim((string) $token);
+
+    if ($token === '') {
+        return false;
+    }
+
+    $keys = wp_resgate_get_recaptcha_keys();
+    $remote_ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+
+    $response = wp_remote_post(
+        'https://www.google.com/recaptcha/api/siteverify',
+        [
+            'timeout' => 10,
+            'body' => [
+                'secret' => $keys['secret_key'],
+                'response' => $token,
+                'remoteip' => $remote_ip,
+            ],
+        ]
+    );
+
+    if (is_wp_error($response)) {
+        error_log('WP Resgate reCAPTCHA verification failed: ' . $response->get_error_message());
+        return false;
+    }
+
+    $body = json_decode(wp_remote_retrieve_body($response), true);
+
+    return !empty($body['success']);
+}
 
 /**
  * Registro de áreas de widgets
@@ -410,6 +559,40 @@ function wp_resgate_customizer($wp_customize) {
         'description' => __('Cor secundária do tema', 'wp-resgate'),
         'section' => 'wp_resgate_style',
     ]));
+
+    // ====================================
+    // SEÇÃO: SEGURANÇA E ANTI-SPAM
+    // ====================================
+    $wp_customize->add_section('wp_resgate_security', [
+        'title' => __('🔒 Segurança e Anti-spam', 'wp-resgate'),
+        'description' => __('Configure a proteção reCAPTCHA nos formulários e login.', 'wp-resgate'),
+        'panel' => 'wp_resgate_panel',
+        'priority' => 40,
+    ]);
+
+    $wp_customize->add_setting('wp_resgate_recaptcha_site_key', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_recaptcha_site_key', [
+        'label' => __('Chave do Site reCAPTCHA (Site Key)', 'wp-resgate'),
+        'description' => __('Cole a chave pública gerada no Google reCAPTCHA v2 (checkbox).', 'wp-resgate'),
+        'section' => 'wp_resgate_security',
+        'type' => 'text',
+    ]);
+
+    $wp_customize->add_setting('wp_resgate_recaptcha_secret_key', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_recaptcha_secret_key', [
+        'label' => __('Chave Secreta reCAPTCHA (Secret Key)', 'wp-resgate'),
+        'description' => __('Cole a chave secreta correspondente para validação no servidor.', 'wp-resgate'),
+        'section' => 'wp_resgate_security',
+        'type' => 'text',
+    ]);
 }
 add_action('customize_register', 'wp_resgate_customizer');
 
@@ -524,6 +707,14 @@ function wp_resgate_handle_diagnostic_form() {
     // Verificar nonce
     if (!wp_verify_nonce($_POST['nonce'], 'wp_resgate_nonce')) {
         wp_die(__('Erro de segurança', 'wp-resgate'));
+    }
+
+    if (wp_resgate_is_recaptcha_enabled()) {
+        $recaptcha_token = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
+
+        if (!wp_resgate_verify_recaptcha($recaptcha_token)) {
+            wp_send_json_error(__('Falha na verificação do reCAPTCHA. Tente novamente.', 'wp-resgate'));
+        }
     }
 
     // Sanitizar dados

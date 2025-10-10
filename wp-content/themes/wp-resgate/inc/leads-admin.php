@@ -773,10 +773,14 @@ class WP_Resgate_Leads_Admin {
             $webhook_url = sanitize_url($_POST['webhook_url']);
             $sheet_id = sanitize_text_field($_POST['sheet_id']);
             $notification_email = sanitize_email($_POST['notification_email']);
+            $recaptcha_site_key = sanitize_text_field($_POST['recaptcha_site_key'] ?? '');
+            $recaptcha_secret_key = sanitize_text_field($_POST['recaptcha_secret_key'] ?? '');
             
             set_theme_mod('wp_resgate_webhook_url', $webhook_url);
             set_theme_mod('wp_resgate_sheet_id', $sheet_id);
             set_theme_mod('wp_resgate_notification_email', $notification_email);
+            set_theme_mod('wp_resgate_recaptcha_site_key', $recaptcha_site_key);
+            set_theme_mod('wp_resgate_recaptcha_secret_key', $recaptcha_secret_key);
             
             echo '<div class="notice notice-success"><p>' . __('Configurações salvas com sucesso!', 'wp-resgate') . '</p></div>';
         }
@@ -784,6 +788,8 @@ class WP_Resgate_Leads_Admin {
         $current_webhook = get_theme_mod('wp_resgate_webhook_url', '');
         $current_sheet_id = get_theme_mod('wp_resgate_sheet_id', '');
         $current_email = get_theme_mod('wp_resgate_notification_email', get_option('admin_email'));
+        $current_recaptcha_site = get_theme_mod('wp_resgate_recaptcha_site_key', '');
+        $current_recaptcha_secret = get_theme_mod('wp_resgate_recaptcha_secret_key', '');
         
         ?>
         <div class="wrap">
@@ -810,6 +816,20 @@ class WP_Resgate_Leads_Admin {
                         <td>
                             <input type="email" name="notification_email" value="<?php echo esc_attr($current_email); ?>" class="regular-text">
                             <p class="description"><?php esc_html_e('Email que receberá notificações de novos leads', 'wp-resgate'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('reCAPTCHA Site Key', 'wp-resgate'); ?></th>
+                        <td>
+                            <input type="text" name="recaptcha_site_key" value="<?php echo esc_attr($current_recaptcha_site); ?>" class="regular-text">
+                            <p class="description"><?php esc_html_e('Chave pública do reCAPTCHA v2 (tipo checkbox).', 'wp-resgate'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><?php esc_html_e('reCAPTCHA Secret Key', 'wp-resgate'); ?></th>
+                        <td>
+                            <input type="text" name="recaptcha_secret_key" value="<?php echo esc_attr($current_recaptcha_secret); ?>" class="regular-text">
+                            <p class="description"><?php esc_html_e('Chave secreta do reCAPTCHA v2 usada na validação do servidor.', 'wp-resgate'); ?></p>
                         </td>
                     </tr>
                 </table>

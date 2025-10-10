@@ -40,7 +40,8 @@ class WP_Resgate_Google_Sheets {
                 'sending' => __('Enviando...', 'wp-resgate'),
                 'success' => __('Mensagem enviada com sucesso! Retornaremos em breve.', 'wp-resgate'),
                 'error' => __('Erro ao enviar mensagem. Tente novamente.', 'wp-resgate'),
-                'validation_error' => __('Por favor, preencha todos os campos obrigatórios.', 'wp-resgate')
+                'validation_error' => __('Por favor, preencha todos os campos obrigatórios.', 'wp-resgate'),
+                'recaptcha' => __('Confirme que você não é um robô.', 'wp-resgate')
             )
         ));
     }
@@ -52,6 +53,14 @@ class WP_Resgate_Google_Sheets {
         // Verificar nonce
         if (!wp_verify_nonce($_POST['nonce'], 'wp_resgate_form_nonce')) {
             wp_die(__('Erro de segurança', 'wp-resgate'));
+        }
+
+        if (wp_resgate_is_recaptcha_enabled()) {
+            $recaptcha_token = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
+
+            if (!wp_resgate_verify_recaptcha($recaptcha_token)) {
+                wp_send_json_error(array('message' => __('Falha na verificação do reCAPTCHA. Tente novamente.', 'wp-resgate')));
+            }
         }
         
         // Sanitizar dados
