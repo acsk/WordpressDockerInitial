@@ -142,18 +142,28 @@ body {
 
 
 /* Correções de contraste no Hero */
-.hero .text-primary {
+.hero .text-primary:not(.btn):not(.btn *) {
     color: white !important;
 }
 
 .hero .btn-light {
-    color: var(--wp-resgate-primary) !important;
-    background-color: white !important;
+    color: #ffffff !important;
+    background-color: transparent !important;
+    border-color: rgba(255, 255, 255, 0.65) !important;
+    border-width: 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: var(--wp-resgate-transition);
 }
 
-.hero .btn-light:hover {
-    color: var(--wp-resgate-primary) !important;
-    background-color: rgba(255, 255, 255, 0.9) !important;
+.hero .btn-light:hover,
+.hero .btn-light:focus {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: #ffffff !important;
+    box-shadow: 0 12px 30px rgba(13, 110, 253, 0.35) !important;
 }
 
 .hero .btn-outline-light {
@@ -163,9 +173,9 @@ body {
 }
 
 .hero .btn-outline-light:hover {
-    color: var(--wp-resgate-primary) !important;
-    background-color: white !important;
-    border-color: white !important;
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 .hero::before {
@@ -180,9 +190,9 @@ body {
 }
 
 .hero .btn-outline-light:hover {
-    color: var(--wp-resgate-primary);
-    background: #fff;
-    border-color: #fff;
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.85) !important;
 }
 
 .badge-soft {

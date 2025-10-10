@@ -464,10 +464,10 @@ function wp_resgate_custom_css() {
         }
         
         /* Corrigir textos em fundos azuis */
-        .hero .text-primary,
-        .bg-primary .text-primary,
-        .guarantee-card .text-primary,
-        .faq-premium-button .text-primary {
+        .hero .text-primary:not(.btn):not(.btn *),
+        .bg-primary .text-primary:not(.btn):not(.btn *),
+        .guarantee-card .text-primary:not(.btn):not(.btn *),
+        .faq-premium-button .text-primary:not(.btn):not(.btn *) {
             color: white !important;
         }
         

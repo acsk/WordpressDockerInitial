@@ -35,7 +35,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                     </p>
 
                     <div class="hero-actions d-flex gap-3 flex-wrap mb-5">
-                        <a href="#diagnostico" class="btn btn-light btn-lg text-primary shadow-lg px-4 py-3">
+                        <a href="#diagnostico" class="btn btn-light btn-lg text-white shadow-lg px-4 py-3">
                             <i class="bi bi-clipboard2-pulse me-2"></i>
                             <?php echo esc_html($hero_btn1_text); ?>
                         </a>
