@@ -21,58 +21,10 @@
                 </p>
             </div>
         </div>
-        
-        <div class="row g-5 align-items-center">
-            <div class="col-lg-5">
-                <div class="feature-benefits">
-                    <h3 class="h4 fw-bold mb-4 text-white"><?php esc_html_e('Por que escolher nosso diagnóstico?', 'wp-resgate'); ?></h3>
-                    
-                    <div class="benefit-item d-flex align-items-start mb-3">
-                        <div class="benefit-icon me-3">
-                            <div class="icon-circle bg-success text-white">
-                                <i class="bi bi-shield-check"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold text-white mb-1"><?php esc_html_e('100% Gratuito', 'wp-resgate'); ?></h5>
-                            <p class="text-white-75 mb-0 small"><?php esc_html_e('Sem compromisso ou taxas ocultas', 'wp-resgate'); ?></p>
-                        </div>
-                    </div>
-                    
-                    <div class="benefit-item d-flex align-items-start mb-3">
-                        <div class="benefit-icon me-3">
-                            <div class="icon-circle bg-warning text-dark">
-                                <i class="bi bi-clock"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold text-white mb-1"><?php esc_html_e('Resposta em 2h', 'wp-resgate'); ?></h5>
-                            <p class="text-white-75 mb-0 small"><?php esc_html_e('Análise rápida e profissional', 'wp-resgate'); ?></p>
-                        </div>
-                    </div>
-                    
-                    <div class="benefit-item d-flex align-items-start mb-4">
-                        <div class="benefit-icon me-3">
-                            <div class="icon-circle bg-info text-white">
-                                <i class="bi bi-people"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <h5 class="fw-bold text-white mb-1"><?php esc_html_e('Atendimento Humano', 'wp-resgate'); ?></h5>
-                            <p class="text-white-75 mb-0 small"><?php esc_html_e('Sem chatbots, apenas especialistas', 'wp-resgate'); ?></p>
-                        </div>
-                    </div>
-                    
-                    <div class="trust-indicators">
-                        <div class="d-flex align-items-center text-white-75 small">
-                            <i class="bi bi-shield-fill-check me-2"></i>
-                            <?php esc_html_e('Dados protegidos e nunca compartilhados', 'wp-resgate'); ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-7">
+     
+        <!-- Formulário em linha única, centralizado -->
+        <div class="row justify-content-center g-5">
+            <div class="col-12 col-lg-8 col-xl-7">
                 <div class="form-card">
                     <div class="card border-0 shadow-lg bg-white">
                         <div class="card-header bg-transparent border-0 pt-4 pb-2">
