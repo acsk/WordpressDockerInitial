@@ -22,29 +22,29 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
             <div class="col-12 col-lg-6">
                 <div class="hero-content" data-aos="fade-right">
                     <span class="hero-badge badge bg-white rounded-pill mb-4 px-4 py-2">
-                        <i class="bi bi-shield-check text-primary me-2"></i> 
+                        <i class="bi bi-shield-check text-primary me-2"></i>
                         <span class="text-primary fw-bold"><?php echo esc_html($hero_badge); ?></span>
                     </span>
-                    
+
                     <h1 class="hero-title display-4 fw-bold lh-1 mb-4 text-white">
                         <?php echo wp_kses_post($hero_title); ?>
                     </h1>
-                    
+
                     <p class="hero-subtitle lead mb-5 text-white-75">
                         <?php echo wp_kses_post($hero_subtitle); ?>
                     </p>
-                    
+
                     <div class="hero-actions d-flex gap-3 flex-wrap mb-5">
                         <a href="#diagnostico" class="btn btn-light btn-lg text-primary shadow-lg px-4 py-3">
-                            <i class="bi bi-clipboard2-pulse me-2"></i> 
+                            <i class="bi bi-clipboard2-pulse me-2"></i>
                             <?php echo esc_html($hero_btn1_text); ?>
                         </a>
                         <a href="#servicos" class="btn btn-outline-light btn-lg px-4 py-3">
-                            <i class="bi bi-lightning-charge me-2"></i> 
+                            <i class="bi bi-lightning-charge me-2"></i>
                             <?php echo esc_html($hero_btn2_text); ?>
                         </a>
                     </div>
-                    
+
                     <div class="hero-features">
                         <div class="row g-3">
                             <div class="col-sm-6">
@@ -54,7 +54,8 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                                             <i class="bi bi-shield-check"></i>
                                         </div>
                                     </div>
-                                    <span class="small fw-semibold text-white"><?php esc_html_e('Backup e hardening inclusos', 'wp-resgate'); ?></span>
+                                    <span
+                                        class="small fw-semibold text-white"><?php esc_html_e('Backup e hardening inclusos', 'wp-resgate'); ?></span>
                                 </div>
                             </div>
                             <div class="col-sm-6">
@@ -64,14 +65,15 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                                             <i class="bi bi-tools"></i>
                                         </div>
                                     </div>
-                                    <span class="small fw-semibold text-white"><?php esc_html_e('Plano de manutenção opcional', 'wp-resgate'); ?></span>
+                                    <span
+                                        class="small fw-semibold text-white"><?php esc_html_e('Plano de manutenção opcional', 'wp-resgate'); ?></span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-12 col-lg-6">
                 <div class="hero-card" data-aos="fade-left">
                     <div class="card border-0 shadow-lg bg-white bg-opacity-95">
@@ -81,28 +83,33 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                                     <i class="bi bi-laptop" style="font-size: 1.3rem;"></i>
                                 </div>
                                 <div>
-                                    <h5 class="mb-1 fw-bold text-dark"><?php esc_html_e('Prévia de restauração', 'wp-resgate'); ?></h5>
-                                    <small class="text-muted"><?php esc_html_e('Exemplo de recuperação', 'wp-resgate'); ?></small>
+                                    <h5 class="mb-1 fw-bold text-dark">
+                                        <?php esc_html_e('Prévia de restauração', 'wp-resgate'); ?></h5>
+                                    <small
+                                        class="text-muted"><?php esc_html_e('Exemplo de recuperação', 'wp-resgate'); ?></small>
                                 </div>
                             </div>
-                            
+
                             <div class="preview-image">
                                 <?php 
                                 $hero_image = get_theme_mod('wp_resgate_hero_image');
                                 if ($hero_image) : ?>
-                                    <img class="img-fluid rounded-3 shadow-sm" src="<?php echo esc_url($hero_image); ?>" alt="<?php esc_attr_e('Mockup WordPress', 'wp-resgate'); ?>" />
+                                <img class="img-fluid rounded-3 shadow-sm" src="<?php echo esc_url($hero_image); ?>"
+                                    alt="<?php esc_attr_e('Mockup WordPress', 'wp-resgate'); ?>" />
                                 <?php else : ?>
-                                    <img class="img-fluid rounded-3 shadow-sm" src="https://placehold.co/900x520/f8f9fa/6c757d?text=Painel+WordPress+\n(Mockup+para+Protótipo)" alt="<?php esc_attr_e('Mockup WordPress', 'wp-resgate'); ?>" />
+                                <img class="img-fluid rounded-3 shadow-sm"
+                                    src="https://placehold.co/900x520/f8f9fa/6c757d?text=Painel+WordPress+\n(Mockup+para+Protótipo)"
+                                    alt="<?php esc_attr_e('Mockup WordPress', 'wp-resgate'); ?>" />
                                 <?php endif; ?>
                             </div>
-                            
 
-                            
+
+
                             <div class="text-muted small mt-3 text-center">
                                 <i class="bi bi-info-circle me-1"></i>
                                 <?php esc_html_e('Imagem ilustrativa para prototipação. Sem dados reais.', 'wp-resgate'); ?>
                             </div>
-                            
+
 
                         </div>
                     </div>
@@ -130,7 +137,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 <?php esc_html_e('Profissionais WordPress escolhidos por marcas de sucesso', 'wp-resgate'); ?>
             </p>
         </div>
-        
+
         <!-- Logos Grid Clean -->
         <div class="logos-clean-grid">
             <div class="row justify-content-center align-items-center g-4">
@@ -138,44 +145,37 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 $client_logos = wp_resgate_get_client_logos();
                 
                 foreach ($client_logos as $index => $logo) : ?>
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="logo-clean-item" data-aos="fade-up" data-aos-delay="<?php echo $index * 100; ?>">
-                            <?php if (!empty($logo['website'])) : ?>
-                                <a href="<?php echo esc_url($logo['website']); ?>" 
-                                   target="_blank" 
-                                   rel="noopener" 
-                                   class="logo-clean-link"
-                                   title="<?php echo esc_attr($logo['title']); ?>">
-                                    <div class="logo-clean-container">
-                                        <img class="logo-clean-image" 
-                                             src="<?php echo esc_url($logo['image']); ?>" 
-                                             alt="<?php echo esc_attr($logo['alt_text']); ?>" 
-                                             loading="lazy" />
-                                        <div class="logo-clean-overlay">
-                                            <i class="bi bi-arrow-up-right-circle"></i>
-                                        </div>
-                                    </div>
-                                    <?php if (!empty($logo['description'])) : ?>
-                                        <div class="logo-clean-description">
-                                            <small class="text-muted"><?php echo esc_html($logo['description']); ?></small>
-                                        </div>
-                                    <?php endif; ?>
-                                </a>
-                            <?php else : ?>
-                                <div class="logo-clean-container">
-                                    <img class="logo-clean-image" 
-                                         src="<?php echo esc_url($logo['image']); ?>" 
-                                         alt="<?php echo esc_attr($logo['alt_text']); ?>" 
-                                         loading="lazy" />
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="logo-clean-item" data-aos="fade-up" data-aos-delay="<?php echo $index * 100; ?>">
+                        <?php if (!empty($logo['website'])) : ?>
+                        <a href="<?php echo esc_url($logo['website']); ?>" target="_blank" rel="noopener"
+                            class="logo-clean-link" title="<?php echo esc_attr($logo['title']); ?>">
+                            <div class="logo-clean-container">
+                                <img class="logo-clean-image" src="<?php echo esc_url($logo['image']); ?>"
+                                    alt="<?php echo esc_attr($logo['alt_text']); ?>" loading="lazy" />
+                                <div class="logo-clean-overlay">
+                                    <i class="bi bi-arrow-up-right-circle"></i>
                                 </div>
-                                <?php if (!empty($logo['description'])) : ?>
-                                    <div class="logo-clean-description">
-                                        <small class="text-muted"><?php echo esc_html($logo['description']); ?></small>
-                                    </div>
-                                <?php endif; ?>
+                            </div>
+                            <?php if (!empty($logo['description'])) : ?>
+                            <div class="logo-clean-description">
+                                <small class="text-muted"><?php echo esc_html($logo['description']); ?></small>
+                            </div>
                             <?php endif; ?>
+                        </a>
+                        <?php else : ?>
+                        <div class="logo-clean-container">
+                            <img class="logo-clean-image" src="<?php echo esc_url($logo['image']); ?>"
+                                alt="<?php echo esc_attr($logo['alt_text']); ?>" loading="lazy" />
                         </div>
+                        <?php if (!empty($logo['description'])) : ?>
+                        <div class="logo-clean-description">
+                            <small class="text-muted"><?php echo esc_html($logo['description']); ?></small>
+                        </div>
+                        <?php endif; ?>
+                        <?php endif; ?>
                     </div>
+                </div>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -187,7 +187,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
 <section id="servicos" class="py-5 services-premium-section position-relative overflow-hidden">
     <!-- Background decorativo -->
     <div class="services-bg-decoration"></div>
-    
+
     <div class="container position-relative">
         <div class="row mb-5 text-center">
             <div class="col-12">
@@ -210,7 +210,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 </div>
             </div>
         </div>
-        
+
         <div class="row g-4">
             <?php 
             $services = wp_resgate_get_services();
@@ -224,84 +224,63 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 ];
                 $gradient_class = $gradient_colors[$index % 4];
                 ?>
-                <div class="col-md-6 col-lg-3">
-                    <div class="h-100 service-card-premium position-relative" data-aos="fade-up" data-aos-delay="<?php echo $index * 150; ?>">
-                        <!-- Card principal -->
-                        <div class="card border-0 shadow-lg h-100 service-main-card">
-                            <!-- Header com ícone e gradiente -->
-                            <div class="service-header <?php echo $gradient_class; ?> text-white p-4 position-relative overflow-hidden">
-                                <div class="service-header-bg"></div>
-                                <div class="position-relative z-1">
-                                    <div class="service-icon-premium mb-3">
-                                        <i class="bi <?php echo esc_attr($service['icon']); ?>"></i>
-                                    </div>
-                                    <h5 class="service-title-premium fw-bold mb-2"><?php echo esc_html($service['title']); ?></h5>
+            <div class="col-md-6 col-lg-3">
+                <div class="h-100 service-card-premium position-relative" data-aos="fade-up"
+                    data-aos-delay="<?php echo $index * 150; ?>">
+                    <!-- Card principal -->
+                    <div class="card border-0 shadow-lg h-100 service-main-card">
+                        <!-- Header com ícone e gradiente -->
+                        <div
+                            class="service-header <?php echo $gradient_class; ?> text-white p-4 position-relative overflow-hidden">
+                            <div class="service-header-bg"></div>
+                            <div class="position-relative z-1">
+                                <div class="service-icon-premium mb-3">
+                                    <i class="bi <?php echo esc_attr($service['icon']); ?>"></i>
                                 </div>
-                            </div>
-                            
-                            <!-- Conteúdo do card -->
-                            <div class="card-body p-4 service-body-premium">
-                                <p class="service-description-premium text-muted mb-4 lh-base"><?php echo esc_html($service['description']); ?></p>
-                                
-                                <!-- Features destacadas -->
-                                <div class="service-features mb-4">
-                                    <div class="feature-item d-flex align-items-center mb-2">
-                                        <div class="feature-check me-2">
-                                            <i class="bi bi-check-circle-fill text-success"></i>
-                                        </div>
-                                        <small class="text-muted"><?php esc_html_e('Atendimento 24h', 'wp-resgate'); ?></small>
-                                    </div>
-                                    <div class="feature-item d-flex align-items-center mb-2">
-                                        <div class="feature-check me-2">
-                                            <i class="bi bi-shield-check text-primary"></i>
-                                        </div>
-                                        <small class="text-muted"><?php esc_html_e('Garantia total', 'wp-resgate'); ?></small>
-                                    </div>
-                                    <div class="feature-item d-flex align-items-center">
-                                        <div class="feature-check me-2">
-                                            <i class="bi bi-lightning-charge text-warning"></i>
-                                        </div>
-                                        <small class="text-muted"><?php esc_html_e('Solução rápida', 'wp-resgate'); ?></small>
-                                    </div>
-                                </div>
+                                <h5 class="service-title-premium fw-bold mb-2">
+                                    <?php echo esc_html($service['title']); ?></h5>
                             </div>
                         </div>
-                        
-                        <!-- Elemento decorativo flutuante -->
-                        <div class="service-floating-element">
-                            <div class="floating-dot <?php echo $gradient_class; ?>"></div>
+
+                        <!-- Conteúdo do card -->
+                        <div class="card-body p-4 service-body-premium">
+                            <p class="service-description-premium text-muted mb-4 lh-base">
+                                <?php echo esc_html($service['description']); ?></p>
                         </div>
                     </div>
+
                 </div>
+            </div>
             <?php endforeach; ?>
         </div>
-        
+
         <!-- Botões de ação centralizados -->
         <div class="row mt-5">
             <div class="col-12">
                 <div class="services-cta-wrapper text-center">
-                    <h4 class="fw-bold text-dark mb-4"><?php esc_html_e('Precisa de ajuda agora?', 'wp-resgate'); ?></h4>
-                    <div class="services-cta-buttons d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center">
+                    <h4 class="fw-bold text-dark mb-4"><?php esc_html_e('Precisa de ajuda agora?', 'wp-resgate'); ?>
+                    </h4>
+                    <div
+                        class="services-cta-buttons d-flex flex-column flex-md-row gap-3 justify-content-center align-items-center">
                         <?php 
                         $whatsapp = get_theme_mod('wp_resgate_whatsapp');
                         if ($whatsapp) : ?>
-                            <a href="https://wa.me/<?php echo esc_attr($whatsapp); ?>" 
-                               class="btn btn-success btn-lg services-whatsapp-btn px-4 py-3"
-                               target="_blank" 
-                               rel="noopener noreferrer"
-                               data-track="services_whatsapp_click">
-                                <i class="bi bi-whatsapp me-2"></i>
-                                <?php esc_html_e('Falar no WhatsApp', 'wp-resgate'); ?>
-                                <small class="d-block mt-1 opacity-75"><?php esc_html_e('Resposta em minutos', 'wp-resgate'); ?></small>
-                            </a>
+                        <a href="https://wa.me/<?php echo esc_attr($whatsapp); ?>"
+                            class="btn btn-success btn-lg services-whatsapp-btn px-4 py-3" target="_blank"
+                            rel="noopener noreferrer" data-track="services_whatsapp_click">
+                            <i class="bi bi-whatsapp me-2"></i>
+                            <?php esc_html_e('Falar no WhatsApp', 'wp-resgate'); ?>
+                            <small
+                                class="d-block mt-1 opacity-75"><?php esc_html_e('Resposta em minutos', 'wp-resgate'); ?></small>
+                        </a>
                         <?php endif; ?>
-                        
-                        <a href="#diagnostico" 
-                           class="btn btn-primary btn-lg services-form-btn px-4 py-3"
-                           data-track="services_form_click">
+
+                        <a href="#diagnostico" class="btn btn-primary btn-lg services-form-btn px-4 py-3"
+                            data-track="services_form_click">
                             <i class="bi bi-clipboard2-pulse me-2"></i>
                             <?php esc_html_e('Diagnóstico Gratuito', 'wp-resgate'); ?>
-                            <small class="d-block mt-1 opacity-75"><?php esc_html_e('Análise completa', 'wp-resgate'); ?></small>
+                            <small
+                                class="d-block mt-1 opacity-75"><?php esc_html_e('Análise completa', 'wp-resgate'); ?></small>
                         </a>
                     </div>
                 </div>
@@ -325,12 +304,12 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
             <div class="particle particle-5"></div>
         </div>
     </div>
-    
+
     <div class="container position-relative">
         <div class="row mb-5 text-center">
             <div class="col-12">
                 <div class="how-it-works-header-wrapper">
-                    <span class="badge bg-gradient-light text-primary rounded-pill mb-3 px-4 py-2 how-it-works-badge">
+                    <span class="badge bg-gradient-light rounded-pill mb-3 px-4 py-2 how-it-works-badge">
                         <i class="bi bi-shield-check me-2"></i>
                         <?php esc_html_e('Método comprovado', 'wp-resgate'); ?>
                     </span>
@@ -348,7 +327,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 </div>
             </div>
         </div>
-        
+
         <div class="row g-4 align-items-stretch">
             <?php 
             $steps = wp_resgate_get_process_steps();
@@ -359,34 +338,31 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 ];
                 $color = $step_colors[$index % count($step_colors)];
                 ?>
-                <div class="col-lg-4 col-md-6">
-                    <div class="process-step-premium h-100" data-aos="fade-up" data-aos-delay="<?php echo $index * 200; ?>">
-                        <!-- Número do passo -->
-                        <div class="process-step-number">
-                            <span><?php echo esc_html($step['number']); ?></span>
-                            <div class="process-step-pulse"></div>
-                        </div>
-                        
-                        <!-- Card principal -->
-                        <div class="process-step-card">
-                            <!-- Header com ícone -->
-                            <div class="process-step-header">
-                                <div class="process-step-icon bg-<?php echo $color; ?>">
-                                    <?php if (!empty($step['icon'])) : ?>
-                                        <i class="bi <?php echo esc_attr($step['icon']); ?>"></i>
-                                    <?php else : ?>
-                                        <i class="bi bi-check-circle"></i>
-                                    <?php endif; ?>
-                                </div>
-                                <div class="process-step-connector"></div>
+            <div class="col-lg-4 col-md-6">
+                <div class="process-step-premium h-100" data-aos="fade-up" data-aos-delay="<?php echo $index * 200; ?>">
+                    <!-- Número do passo -->
+                   
+
+                    <!-- Card principal -->
+                    <div class="process-step-card">
+                        <!-- Header com ícone -->
+                        <div class="process-step-header">
+                            <div class="process-step-icon bg-<?php echo $color; ?>">
+                                <?php if (!empty($step['icon'])) : ?>
+                                <i class="bi <?php echo esc_attr($step['icon']); ?>"></i>
+                                <?php else : ?>
+                                <i class="bi bi-check-circle"></i>
+                                <?php endif; ?>
                             </div>
-                            
-                            <!-- Conteúdo -->
-                            <div class="process-step-content">
-                                <h4 class="process-step-title"><?php echo esc_html($step['title']); ?></h4>
-                                
-                                <div class="process-step-description">
-                                    <?php 
+                            <div class="process-step-connector"></div>
+                        </div>
+
+                        <!-- Conteúdo -->
+                        <div class="process-step-content">
+                            <h4 class="process-step-title"><?php echo esc_html($step['title']); ?></h4>
+
+                            <div class="process-step-description">
+                                <?php 
                                     // Usar post_content se disponível, senão usar description
                                     $content = !empty($step['content']) ? $step['content'] : $step['description'];
                                     
@@ -396,26 +372,16 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                                     
                                     echo $content;
                                     ?>
-                                </div>
-                                
-                                <!-- Features destacadas -->
-                                <div class="process-step-features">
-                                    <div class="feature-badge">
-                                        <i class="bi bi-clock me-1"></i>
-                                        <small><?php esc_html_e('Rápido', 'wp-resgate'); ?></small>
-                                    </div>
-                                    <div class="feature-badge">
-                                        <i class="bi bi-shield-check me-1"></i>
-                                        <small><?php esc_html_e('Seguro', 'wp-resgate'); ?></small>
-                                    </div>
-                                </div>
                             </div>
+
+                           
                         </div>
                     </div>
                 </div>
+            </div>
             <?php endforeach; ?>
         </div>
-        
+
         <!-- CTA Premium -->
         <div class="row mt-5">
             <div class="col-12">
@@ -430,24 +396,27 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                         <p class="text-white-75 mb-4">
                             <?php esc_html_e('Nosso time está online agora e pode começar o resgate imediatamente', 'wp-resgate'); ?>
                         </p>
-                        <div class="how-it-works-cta-buttons d-flex flex-column flex-md-row gap-3 justify-content-center">
-                            <a href="#diagnostico" class="btn btn-primary btn-lg px-4 py-3 how-it-works-btn-primary form-btn">
+                        <div
+                            class="how-it-works-cta-buttons d-flex flex-column flex-md-row gap-3 justify-content-center">
+                            <a href="#diagnostico"
+                                class="btn btn-primary btn-lg px-4 py-3 how-it-works-btn-primary form-btn">
                                 <i class="bi bi-play-circle me-2"></i>
                                 <?php esc_html_e('Iniciar Resgate Agora', 'wp-resgate'); ?>
-                                <small class="d-block mt-1 opacity-75"><?php esc_html_e('Diagnóstico em 5 minutos', 'wp-resgate'); ?></small>
+                                <small
+                                    class="d-block mt-1 opacity-75"><?php esc_html_e('Diagnóstico em 5 minutos', 'wp-resgate'); ?></small>
                             </a>
-                            
+
                             <?php 
                             $whatsapp = get_theme_mod('wp_resgate_whatsapp');
                             if ($whatsapp) : ?>
-                                <a href="https://wa.me/<?php echo esc_attr($whatsapp); ?>" 
-                                   class="btn btn-success btn-lg px-4 py-3 how-it-works-btn-secondary whatsapp-btn"
-                                   target="_blank" 
-                                   rel="noopener noreferrer">
-                                    <i class="bi bi-whatsapp me-2"></i>
-                                    <?php esc_html_e('Falar com Especialista', 'wp-resgate'); ?>
-                                    <small class="d-block mt-1 opacity-75"><?php esc_html_e('Resposta imediata', 'wp-resgate'); ?></small>
-                                </a>
+                            <a href="https://wa.me/<?php echo esc_attr($whatsapp); ?>"
+                                class="btn btn-success btn-lg px-4 py-3 how-it-works-btn-secondary whatsapp-btn"
+                                target="_blank" rel="noopener noreferrer">
+                                <i class="bi bi-whatsapp me-2"></i>
+                                <?php esc_html_e('Falar com Especialista', 'wp-resgate'); ?>
+                                <small
+                                    class="d-block mt-1 opacity-75"><?php esc_html_e('Resposta imediata', 'wp-resgate'); ?></small>
+                            </a>
                             <?php endif; ?>
                         </div>
                     </div>
