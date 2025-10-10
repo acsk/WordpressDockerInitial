@@ -163,6 +163,43 @@ function wp_resgate_is_recaptcha_enabled() {
 }
 
 /**
+ * Determina se o ambiente atual é local/desenvolvimento.
+ */
+function wp_resgate_is_local_environment() {
+    if (function_exists('wp_get_environment_type')) {
+        $env = wp_get_environment_type();
+        if (in_array($env, ['local', 'development'], true)) {
+            return true;
+        }
+    }
+
+    if (defined('WP_ENVIRONMENT_TYPE') && in_array(WP_ENVIRONMENT_TYPE, ['local', 'development'], true)) {
+        return true;
+    }
+
+    $host = isset($_SERVER['HTTP_HOST']) ? wp_unslash($_SERVER['HTTP_HOST']) : '';
+    if ($host && (false !== strpos($host, 'localhost') || '127.0.0.1' === $host)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Verifica se a validação do reCAPTCHA deve ser ignorada (ex.: ambiente local).
+ */
+function wp_resgate_should_skip_recaptcha() {
+    $skip = wp_resgate_is_local_environment();
+
+    /**
+     * Permite sobrescrever a decisão de ignorar o reCAPTCHA.
+     *
+     * @param bool $skip
+     */
+    return apply_filters('wp_resgate_should_skip_recaptcha', $skip);
+}
+
+/**
  * Registra o script do reCAPTCHA para reutilização no front-end e tela de login.
  */
 function wp_resgate_register_recaptcha_script() {
@@ -225,6 +262,10 @@ function wp_resgate_verify_login_recaptcha($user, $username, $password) {
         return $user;
     }
 
+    if (wp_resgate_should_skip_recaptcha()) {
+        return $user;
+    }
+
     if (!isset($_POST['log'])) {
         return $user;
     }
@@ -252,6 +293,10 @@ add_filter('authenticate', 'wp_resgate_verify_login_recaptcha', 21, 3);
  */
 function wp_resgate_verify_recaptcha($token) {
     if (!wp_resgate_is_recaptcha_enabled()) {
+        return true;
+    }
+
+    if (wp_resgate_should_skip_recaptcha()) {
         return true;
     }
 
