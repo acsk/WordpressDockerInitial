@@ -237,7 +237,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                                 <div class="service-icon-premium mb-3">
                                     <i class="bi <?php echo esc_attr($service['icon']); ?>"></i>
                                 </div>
-                                <h5 class="service-title-premium fw-bold mb-2">
+                                <h5 class="service-title-premium fw-bold mb-2 text-center">
                                     <?php echo esc_html($service['title']); ?></h5>
                             </div>
                         </div>

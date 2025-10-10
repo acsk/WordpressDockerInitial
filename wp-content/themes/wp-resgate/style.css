@@ -414,9 +414,11 @@ body {
 
 .maintenance-header {
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    text-align: center;
 }
 
 .maintenance-icon {
@@ -447,17 +449,19 @@ body {
 
 .maintenance-features .feature-item {
     display: flex;
-    align-items: flex-start;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
     margin-bottom: 1.5rem;
     padding: 1rem;
     border-radius: 12px;
     transition: all 0.3s ease;
+    text-align: center;
 }
 
 .maintenance-features .feature-item:hover {
     background: rgba(37, 99, 235, 0.05);
-    transform: translateX(8px);
+    transform: translateY(-4px);
 }
 
 .maintenance-features .feature-item:last-child {
