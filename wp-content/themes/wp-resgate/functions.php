@@ -2441,6 +2441,7 @@ add_action('wp_head', 'wp_resgate_seo_meta');
  * Incluir integração com Google Sheets
  */
 require_once get_template_directory() . '/inc/google-sheets-integration.php';
+require_once get_template_directory() . '/inc/system-tests.php';
 
 /**
  * Incluir painel administrativo dos leads
