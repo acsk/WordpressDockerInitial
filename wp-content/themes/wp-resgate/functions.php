@@ -63,18 +63,18 @@ add_action('after_setup_theme', 'wp_resgate_setup');
  * Enfileiramento de scripts e estilos
  */
 function wp_resgate_scripts() {
-    // Bootstrap CSS
+    // Bootstrap CSS (local)
     wp_enqueue_style(
         'bootstrap',
-        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css',
+        WP_RESGATE_THEME_URL . '/assets/libs/bootstrap/css/bootstrap.min.css',
         [],
         '5.3.3'
     );
 
-    // Bootstrap Icons
+    // Bootstrap Icons (local)
     wp_enqueue_style(
         'bootstrap-icons',
-        'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css',
+        WP_RESGATE_THEME_URL . '/assets/libs/bootstrap-icons/bootstrap-icons.css',
         [],
         '1.11.3'
     );
@@ -95,10 +95,10 @@ function wp_resgate_scripts() {
         WP_RESGATE_VERSION
     );
 
-    // Bootstrap JS
+    // Bootstrap JS (local)
     wp_enqueue_script(
         'bootstrap',
-        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js',
+        WP_RESGATE_THEME_URL . '/assets/libs/bootstrap/js/bootstrap.bundle.min.js',
         [],
         '5.3.3',
         true
@@ -2042,7 +2042,7 @@ function wp_resgate_admin_enqueue_scripts($hook) {
     if (in_array($post_type, ['process_steps', 'testimonial', 'service', 'client_logo'])) {
         wp_enqueue_style(
             'bootstrap-icons-admin',
-            'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css',
+            WP_RESGATE_THEME_URL . '/assets/libs/bootstrap-icons/bootstrap-icons.css',
             [],
             '1.11.3'
         );
@@ -2675,9 +2675,7 @@ function wp_resgate_resource_hints($hints, $relation_type) {
         return $hints;
     }
 
-    if (in_array($relation_type, ['dns-prefetch', 'preconnect'], true)) {
-        $hints[] = 'https://cdn.jsdelivr.net';
-    }
+    // CDN removido - usando bibliotecas locais
 
     if ($relation_type === 'preconnect') {
         $hints[] = home_url('/');
