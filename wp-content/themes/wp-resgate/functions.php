@@ -142,6 +142,20 @@ function wp_resgate_scripts() {
 add_action('wp_enqueue_scripts', 'wp_resgate_scripts');
 
 /**
+ * Desabilita scripts e estilos de emojis para reduzir requests.
+ */
+function wp_resgate_disable_emojis() {
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('admin_print_scripts', 'print_emoji_detection_script');
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    remove_action('admin_print_styles', 'print_emoji_styles');
+    remove_filter('the_content_feed', 'wp_staticize_emoji');
+    remove_filter('comment_text_rss', 'wp_staticize_emoji');
+    remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+}
+add_action('init', 'wp_resgate_disable_emojis');
+
+/**
  * Recupera as chaves configuradas do reCAPTCHA.
  *
  * @return array{site_key:string,secret_key:string}
@@ -2421,21 +2435,383 @@ require_once get_template_directory() . '/inc/default-data.php';
 /**
  * SEO básico
  */
-function wp_resgate_seo_meta() {
-    if (is_front_page()) {
-        echo '<meta name="description" content="' . esc_attr(get_bloginfo('description')) . '">' . "\n";
-        echo '<meta property="og:title" content="' . esc_attr(get_bloginfo('name')) . '">' . "\n";
-        echo '<meta property="og:description" content="' . esc_attr(get_bloginfo('description')) . '">' . "\n";
-        echo '<meta property="og:type" content="website">' . "\n";
-        echo '<meta property="og:url" content="' . esc_url(home_url()) . '">' . "\n";
-        
-        $logo = get_theme_mod('wp_resgate_logo');
-        if ($logo) {
-            echo '<meta property="og:image" content="' . esc_url($logo) . '">' . "\n";
+/**
+ * Recupera URLs de ativos de marca para metadados/SEO.
+ *
+ * @return array{logo:string,share_image:string}
+ */
+function wp_resgate_get_brand_assets() {
+    $logo_url = '';
+    $custom_logo_id = get_theme_mod('custom_logo');
+
+    if ($custom_logo_id) {
+        $custom_logo = wp_get_attachment_image_url($custom_logo_id, 'full');
+        if ($custom_logo) {
+            $logo_url = $custom_logo;
         }
     }
+
+    if ($logo_url === '') {
+        $theme_logo = get_theme_mod('wp_resgate_logo', '');
+        if ($theme_logo) {
+            $logo_url = $theme_logo;
+        }
+    }
+
+    if ($logo_url === '') {
+        $site_icon = get_site_icon_url(512);
+        if ($site_icon) {
+            $logo_url = $site_icon;
+        }
+    }
+
+    $share_image = get_theme_mod('wp_resgate_hero_image', '');
+    if ($share_image === '') {
+        $share_image = $logo_url;
+    }
+
+    return [
+        'logo' => $logo_url,
+        'share_image' => $share_image,
+    ];
 }
-add_action('wp_head', 'wp_resgate_seo_meta');
+
+/**
+ * Normaliza telefone para formato aceito pelo Schema (E.164 simplificado).
+ *
+ * @param string $phone
+ */
+function wp_resgate_normalize_phone_for_schema($phone) {
+    $digits = preg_replace('/\D+/', '', (string) $phone);
+
+    if ($digits === '') {
+        return '';
+    }
+
+    if (strpos($digits, '00') === 0) {
+        $digits = substr($digits, 2);
+    }
+
+    return '+' . ltrim($digits, '+');
+}
+
+/**
+ * Metadados essenciais para SEO/social.
+ */
+function wp_resgate_seo_meta() {
+    if (!is_front_page()) {
+        return;
+    }
+
+    $site_name = wp_strip_all_tags(get_theme_mod('wp_resgate_company_name', get_bloginfo('name')));
+    $raw_description = get_theme_mod('wp_resgate_tagline', get_bloginfo('description'));
+    $description = wp_strip_all_tags($raw_description);
+    if ($description === '') {
+        $description = wp_strip_all_tags(get_bloginfo('description'));
+    }
+    $description = wp_trim_words($description, 50, '');
+
+    $canonical = trailingslashit(home_url());
+    $locale = str_replace('_', '-', get_locale());
+    $title = wp_get_document_title();
+    $robots = wp_resgate_is_local_environment() ? 'noindex,nofollow' : 'index,follow';
+    $brand_assets = wp_resgate_get_brand_assets();
+    $share_image = $brand_assets['share_image'];
+
+    printf('<link rel="canonical" href="%s" />' . "\n", esc_url($canonical));
+    printf('<meta name="description" content="%s" />' . "\n", esc_attr($description));
+    printf('<meta name="robots" content="%s" />' . "\n", esc_attr($robots));
+    printf('<meta property="og:locale" content="%s" />' . "\n", esc_attr($locale));
+    printf('<meta property="og:type" content="website" />' . "\n");
+    printf('<meta property="og:title" content="%s" />' . "\n", esc_attr($title));
+    printf('<meta property="og:description" content="%s" />' . "\n", esc_attr($description));
+    printf('<meta property="og:url" content="%s" />' . "\n", esc_url($canonical));
+    printf('<meta property="og:site_name" content="%s" />' . "\n", esc_attr($site_name));
+
+    if ($share_image) {
+        printf('<meta property="og:image" content="%s" />' . "\n", esc_url($share_image));
+    }
+
+    $twitter_card = $share_image ? 'summary_large_image' : 'summary';
+    printf('<meta name="twitter:card" content="%s" />' . "\n", esc_attr($twitter_card));
+    printf('<meta name="twitter:title" content="%s" />' . "\n", esc_attr($title));
+    printf('<meta name="twitter:description" content="%s" />' . "\n", esc_attr($description));
+
+    if ($share_image) {
+        printf('<meta name="twitter:image" content="%s" />' . "\n", esc_url($share_image));
+    }
+}
+add_action('wp_head', 'wp_resgate_seo_meta', 20);
+
+/**
+ * Estrutura JSON-LD para rich results.
+ */
+function wp_resgate_output_structured_data() {
+    if (!is_front_page()) {
+        return;
+    }
+
+    $site_url = trailingslashit(home_url());
+    $site_name = wp_strip_all_tags(get_theme_mod('wp_resgate_company_name', get_bloginfo('name')));
+    $description = wp_strip_all_tags(get_theme_mod('wp_resgate_tagline', get_bloginfo('description')));
+    $locale = str_replace('_', '-', get_locale());
+    $brand_assets = wp_resgate_get_brand_assets();
+
+    $graph = [];
+
+    $organization = [
+        '@type' => 'ProfessionalService',
+        'name' => $site_name,
+        'url' => $site_url,
+        'description' => $description,
+    ];
+
+    if ($brand_assets['logo']) {
+        $organization['logo'] = $brand_assets['logo'];
+    }
+
+    $email = sanitize_email(get_theme_mod('wp_resgate_email', get_option('admin_email')));
+    if ($email) {
+        $organization['email'] = $email;
+    }
+
+    $raw_phone = get_theme_mod('wp_resgate_whatsapp', '');
+    $normalized_phone = wp_resgate_normalize_phone_for_schema($raw_phone);
+    if ($normalized_phone) {
+        $organization['telephone'] = $normalized_phone;
+        $organization['contactPoint'] = [
+            [
+                '@type' => 'ContactPoint',
+                'telephone' => $normalized_phone,
+                'contactType' => 'customer service',
+                'areaServed' => ['BR'],
+                'availableLanguage' => ['Portuguese', 'English'],
+            ],
+        ];
+    }
+
+    $address = wp_strip_all_tags(get_theme_mod('wp_resgate_address', ''));
+    if ($address) {
+        $organization['address'] = [
+            '@type' => 'PostalAddress',
+            'streetAddress' => $address,
+        ];
+    }
+
+    $graph[] = $organization;
+
+    $website = [
+        '@type' => 'WebSite',
+        'name' => $site_name,
+        'url' => $site_url,
+        'description' => $description,
+        'inLanguage' => $locale,
+        'potentialAction' => [
+            '@type' => 'SearchAction',
+            'target' => add_query_arg('s', '{search_term_string}', home_url('/')),
+            'query-input' => 'required name=search_term_string',
+        ],
+    ];
+
+    if ($brand_assets['share_image']) {
+        $website['image'] = $brand_assets['share_image'];
+    }
+
+    $graph[] = $website;
+
+    $faq_entries = function_exists('get_faqs') ? get_faqs() : [];
+    if (!empty($faq_entries)) {
+        $faq_schema = [
+            '@type' => 'FAQPage',
+            'name' => sprintf(__('Perguntas frequentes sobre %s', 'wp-resgate'), $site_name),
+            'mainEntity' => [],
+        ];
+
+        foreach ($faq_entries as $entry) {
+            $question_text = wp_strip_all_tags($entry['question'] ?? '');
+            $answer_text = wp_strip_all_tags($entry['answer'] ?? '');
+
+            if ($question_text === '' || $answer_text === '') {
+                continue;
+            }
+
+            $faq_schema['mainEntity'][] = [
+                '@type' => 'Question',
+                'name' => $question_text,
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text' => $answer_text,
+                ],
+            ];
+        }
+
+        if (!empty($faq_schema['mainEntity'])) {
+            $graph[] = $faq_schema;
+        }
+    }
+
+    if (empty($graph)) {
+        return;
+    }
+
+    $structured_data = [
+        '@context' => 'https://schema.org',
+        '@graph' => $graph,
+    ];
+
+    echo '<script type="application/ld+json">' . wp_json_encode($structured_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+}
+add_action('wp_head', 'wp_resgate_output_structured_data', 30);
+
+/**
+ * Adiciona dicas de recursos para CDNs externos e host principal.
+ *
+ * @param array<string> $hints
+ * @param string $relation_type
+ * @return array<string>
+ */
+function wp_resgate_resource_hints($hints, $relation_type) {
+    if (is_admin()) {
+        return $hints;
+    }
+
+    if (in_array($relation_type, ['dns-prefetch', 'preconnect'], true)) {
+        $hints[] = 'https://cdn.jsdelivr.net';
+    }
+
+    if ($relation_type === 'preconnect') {
+        $hints[] = home_url('/');
+    }
+
+    return array_unique($hints);
+}
+add_filter('wp_resource_hints', 'wp_resgate_resource_hints', 10, 2);
+
+/**
+ * Converte CSS críticos em preload sem bloquear renderização.
+ *
+ * @param string $html
+ * @param string $handle
+ * @param string $href
+ * @param string $media
+ * @return string
+ */
+function wp_resgate_async_styles($html, $handle, $href, $media) {
+    if (is_admin()) {
+        return $html;
+    }
+
+    $async_handles = [
+        'wp-resgate-style',
+        'wp-resgate-scroll-fix',
+        'bootstrap',
+        'bootstrap-icons',
+        'dashicons', // fallback para editores logados
+    ];
+
+    if (!in_array($handle, $async_handles, true)) {
+        return $html;
+    }
+
+    $href_attr = esc_url($href);
+    $media_attr = esc_attr($media);
+    $crossorigin = strpos($href, '//cdn.jsdelivr.net') !== false ? ' crossorigin' : '';
+
+    $preload = sprintf(
+        "<link rel='preload' href='%s' as='style'%s onload=\"this.onload=null;this.rel='stylesheet'\" />",
+        $href_attr,
+        $crossorigin
+    );
+
+    $noscript = sprintf(
+        "<noscript><link rel='stylesheet' href='%s' media='%s' /></noscript>",
+        $href_attr,
+        $media_attr
+    );
+
+    return $preload . "\n" . $noscript;
+}
+add_filter('style_loader_tag', 'wp_resgate_async_styles', 10, 4);
+
+/**
+ * Adiciona defer a scripts do tema e move jQuery para o rodapé.
+ */
+function wp_resgate_optimize_scripts() {
+    add_filter(
+        'script_loader_tag',
+        function ($tag, $handle, $src) {
+            if (is_admin()) {
+                return $tag;
+            }
+
+            $defer_handles = [
+                'bootstrap',
+                'wp-resgate-script',
+                'wp-resgate-diagnostics',
+            ];
+
+            if (in_array($handle, $defer_handles, true)) {
+                if (false === stripos($tag, ' defer')) {
+                    $tag = str_replace('<script ', '<script defer ', $tag);
+                }
+            }
+
+            return $tag;
+        },
+        10,
+        3
+    );
+
+    add_action(
+        'wp_default_scripts',
+        function ($scripts) {
+            if (is_admin()) {
+                return;
+            }
+
+            foreach (['jquery', 'jquery-core', 'jquery-migrate'] as $handle) {
+                if (isset($scripts->registered[$handle])) {
+                    $scripts->add_data($handle, 'group', 1);
+                }
+            }
+        }
+    );
+}
+add_action('after_setup_theme', 'wp_resgate_optimize_scripts');
+
+/**
+ * Pré-carrega a imagem principal do hero para melhorar o LCP.
+ */
+function wp_resgate_preload_hero_image() {
+    if (!is_front_page()) {
+        return;
+    }
+
+    $hero_image = get_theme_mod('wp_resgate_hero_image');
+    if (!$hero_image) {
+        return;
+    }
+
+    printf(
+        "<link rel='preload' as='image' href='%s' fetchpriority='high' />\n",
+        esc_url($hero_image)
+    );
+}
+add_action('wp_head', 'wp_resgate_preload_hero_image', 5);
+
+/**
+ * Remove estilos de blocos do WordPress na home para evitar CSS desnecessário.
+ */
+function wp_resgate_trim_block_styles() {
+    if (!is_front_page()) {
+        return;
+    }
+
+    wp_dequeue_style('wp-block-library');
+    wp_dequeue_style('wp-block-library-theme');
+    wp_dequeue_style('global-styles');
+}
+add_action('wp_enqueue_scripts', 'wp_resgate_trim_block_styles', 100);
 
 /**
  * Incluir integração com Google Sheets
