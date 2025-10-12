@@ -23,7 +23,7 @@ class WP_Resgate_System_Tests {
      * Inicializa hooks necessários.
      */
     public function __construct() {
-        add_action('admin_menu', [$this, 'register_admin_page']);
+        add_action('admin_menu', [$this, 'register_admin_page'], 20);
         add_action('wp_ajax_' . self::AJAX_ACTION, [$this, 'handle_ajax_run_tests']);
         add_action('admin_init', [$this, 'maybe_redirect_pretty_url']);
     }
@@ -194,6 +194,10 @@ class WP_Resgate_System_Tests {
      */
     public function maybe_redirect_pretty_url() {
         if (!is_admin()) {
+            return;
+        }
+
+        if (!current_user_can('manage_options')) {
             return;
         }
 
