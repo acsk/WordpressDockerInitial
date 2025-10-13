@@ -2784,12 +2784,11 @@ function wp_resgate_async_styles($html, $handle, $href, $media) {
 
     $href_attr = esc_url($href);
     $media_attr = esc_attr($media);
-    $crossorigin = strpos($href, '//cdn.jsdelivr.net') !== false ? ' crossorigin' : '';
+    // Removido crossorigin - usando apenas arquivos locais agora
 
     $preload = sprintf(
-        "<link rel='preload' href='%s' as='style'%s onload=\"this.onload=null;this.rel='stylesheet'\" />",
-        $href_attr,
-        $crossorigin
+        "<link rel='preload' href='%s' as='style' onload=\"this.onload=null;this.rel='stylesheet'\" />",
+        $href_attr
     );
 
     $noscript = sprintf(
