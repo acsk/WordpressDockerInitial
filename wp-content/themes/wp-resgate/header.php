@@ -146,7 +146,6 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
             font-weight: 600;
             font-size: 0.9rem;
-            animation: fadeInUp 0.8s ease-out;
             border: 1px solid rgba(255, 255, 255, 0.5);
         }
         
@@ -156,19 +155,13 @@
         
         .hero-title {
             text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
-            animation: fadeInUp 0.8s ease-out 0.2s both;
         }
         
         .hero-subtitle {
             color: rgba(255, 255, 255, 0.9) !important;
             text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
-            animation: fadeInUp 0.8s ease-out 0.4s both;
             font-size: 1.3rem;
             line-height: 1.6;
-        }
-        
-        .hero-actions {
-            animation: fadeInUp 0.8s ease-out 0.6s both;
         }
         
         .hero-actions .btn {
@@ -205,10 +198,6 @@
             color: #fff !important;
         }
         
-        .hero-features {
-            animation: fadeInUp 0.8s ease-out 0.8s both;
-        }
-        
         .hero-features .icon-circle {
             width: 35px;
             height: 35px;
@@ -231,10 +220,6 @@
             transform: scale(1.1);
         }
         
-        .hero-card {
-            animation: fadeInLeft 0.8s ease-out 0.5s both;
-        }
-        
         .hero-card .card {
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -247,28 +232,6 @@
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
         }
 
-        
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes fadeInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
         
         /* Responsive adjustments */
         @media (max-width: 991.98px) {
