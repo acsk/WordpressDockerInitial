@@ -54,6 +54,15 @@ class WP_Resgate_Google_Sheets {
                 $recaptcha_data['scriptUrl'] = $script_url;
             }
         }
+
+        $redirect_data = array(
+            'enabled' => true,
+            'baseUrl' => wp_resgate_get_thank_you_base_url(),
+            'returnParam' => 'return',
+            'delay' => 1500,
+            'appendReturn' => true,
+        );
+        $redirect_data = apply_filters('wp_resgate_form_redirect_config', $redirect_data);
         
         // Localizar script com dados necessários
         wp_localize_script('wp-resgate-form-handler', 'wpResgateForm', array(
@@ -67,6 +76,7 @@ class WP_Resgate_Google_Sheets {
                 'recaptcha' => __('Confirme que você não é um robô.', 'wp-resgate')
             ),
             'recaptcha' => $recaptcha_data,
+            'redirect' => $redirect_data,
         ));
     }
     

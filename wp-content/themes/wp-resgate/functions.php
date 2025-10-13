@@ -2912,6 +2912,152 @@ function wp_resgate_output_gtag_script() {
 add_action('wp_head', 'wp_resgate_output_gtag_script', 5);
 
 /**
+ * Recupera a URL base para a página de agradecimento/redirect.
+ *
+ * @return string
+ */
+function wp_resgate_get_thank_you_base_url() {
+    $custom_url = trim((string) get_theme_mod('wp_resgate_thank_you_url', ''));
+    if ($custom_url !== '') {
+        $normalized = esc_url_raw($custom_url);
+        if ($normalized) {
+            return apply_filters('wp_resgate_thank_you_base_url', $normalized);
+        }
+    }
+
+    $default = add_query_arg('wp_resgate_thank_you', '1', home_url('/'));
+
+    return apply_filters('wp_resgate_thank_you_base_url', $default);
+}
+
+/**
+ * Renderiza página intermediária de agradecimento e redireciona de volta.
+ */
+function wp_resgate_render_thank_you_page() {
+    if (!isset($_GET['wp_resgate_thank_you'])) {
+        return;
+    }
+
+    $return_url = home_url('/');
+    if (isset($_GET['return'])) {
+        $candidate = wp_unslash((string) $_GET['return']);
+        if (wp_http_validate_url($candidate)) {
+            $return_url = esc_url_raw($candidate);
+        }
+    }
+
+    $title = get_theme_mod('wp_resgate_thank_you_title', __('Mensagem enviada', 'wp-resgate'));
+    $message = get_theme_mod('wp_resgate_thank_you_message', __('Recebemos sua solicitação e entraremos em contato em breve.', 'wp-resgate'));
+    $submessage = get_theme_mod('wp_resgate_thank_you_submessage', __('Você será redirecionado automaticamente em instantes.', 'wp-resgate'));
+    $delay = (int) apply_filters('wp_resgate_thank_you_return_delay', 4000);
+    if ($delay < 0) {
+        $delay = 0;
+    }
+
+    nocache_headers();
+    status_header(200);
+    header_remove('Link');
+    header('X-Robots-Tag: noindex, nofollow');
+    ?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo('charset'); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php echo esc_html($title); ?></title>
+    <?php wp_head(); ?>
+    <style>
+        body.wp-resgate-thank-you-page {
+            font-family: var(--wp-resgate-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+            background: linear-gradient(135deg, #0d6efd 0%, #2a4fb6 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .wp-resgate-thank-you-content {
+            max-width: 520px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(12px);
+        }
+
+        .wp-resgate-thank-you-content h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .wp-resgate-thank-you-message {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .wp-resgate-thank-you-submessage {
+            opacity: 0.85;
+            margin-bottom: 1.5rem;
+        }
+
+        .wp-resgate-thank-you-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #0d6efd;
+            background: #ffffff;
+            padding: 0.75rem 1.5rem;
+            border-radius: 999px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .wp-resgate-thank-you-link:hover {
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+    <script>
+        window.addEventListener('load', function () {
+            var delay = <?php echo (int) $delay; ?>;
+            if (delay >= 0) {
+                setTimeout(function () {
+                    window.location.href = <?php echo wp_json_encode($return_url); ?>;
+                }, delay);
+            }
+        });
+    </script>
+</head>
+<body <?php body_class('wp-resgate-thank-you-page'); ?>>
+<main class="wp-resgate-thank-you-content" role="main">
+    <h1><?php echo esc_html($title); ?></h1>
+    <?php if ($message !== '') : ?>
+        <p class="wp-resgate-thank-you-message"><?php echo esc_html($message); ?></p>
+    <?php endif; ?>
+    <?php if ($submessage !== '') : ?>
+        <p class="wp-resgate-thank-you-submessage"><?php echo esc_html($submessage); ?></p>
+    <?php endif; ?>
+    <p><a class="wp-resgate-thank-you-link" href="<?php echo esc_url($return_url); ?>"><?php esc_html_e('Voltar agora', 'wp-resgate'); ?></a></p>
+</main>
+<script>
+  gtag('event', 'conversion', {
+      'send_to': 'AW-17649415974/iTciCIX-wKwbEKbu8t9B',
+      'value': 1.0,
+      'currency': 'BRL'
+  });
+</script>
+<?php wp_footer(); ?>
+</body>
+</html>
+<?php
+    exit;
+}
+add_action('template_redirect', 'wp_resgate_render_thank_you_page');
+
+/**
  * Incluir integração com Google Sheets
  */
 require_once get_template_directory() . '/inc/google-sheets-integration.php';

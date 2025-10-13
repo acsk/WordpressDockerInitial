@@ -30,6 +30,7 @@
             this.recaptchaObserver = null;
             this.recaptchaPromise = null;
             this.recaptchaLoading = false;
+            this.redirectTimeout = null;
 
             this.bindEvents();
             this.setupRequiredIndicators();
@@ -97,6 +98,7 @@
                     this.showMessage(result.data.message, 'success');
                     this.resetForm();
                     this.trackConversion(result.data);
+                    this.scheduleRedirect();
                 } else {
                     this.showMessage(result.data.message, 'error');
                 }
@@ -368,12 +370,6 @@
                     event_label: 'contact_form',
                     value: 1,
                 });
-
-                window.gtag('event', 'conversion', {
-                    send_to: 'AW-17649415974/iTciCIX-wKwbEKbu8t9B',
-                    value: 1.0,
-                    currency: 'BRL',
-                });
             }
 
             if (typeof window.fbq !== 'undefined') {
@@ -389,6 +385,41 @@
                     lead_id: data?.lead_id ?? null,
                 });
             }
+        }
+
+        scheduleRedirect() {
+            const redirect = this.config.redirect;
+
+            if (!redirect || redirect.enabled === false) {
+                return;
+            }
+
+            const baseUrl = redirect.baseUrl || redirect.url;
+            if (!baseUrl) {
+                return;
+            }
+
+            const delay = Number(redirect.delay) || 1200;
+            let finalUrl = baseUrl;
+
+            if (redirect.appendReturn !== false) {
+                try {
+                    const url = new URL(baseUrl, window.location.origin);
+                    const param = redirect.returnParam || 'return';
+                    url.searchParams.set(param, window.location.href);
+                    finalUrl = url.toString();
+                } catch (error) {
+                    finalUrl = baseUrl;
+                }
+            }
+
+            if (this.redirectTimeout) {
+                window.clearTimeout(this.redirectTimeout);
+            }
+
+            this.redirectTimeout = window.setTimeout(() => {
+                window.location.href = finalUrl;
+            }, delay);
         }
 
         scrollToForm() {
