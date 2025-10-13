@@ -20,7 +20,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
     <div class="container position-relative">
         <div class="row align-items-center g-5 py-4">
             <div class="col-12 col-lg-6">
-                <div class="hero-content" data-aos="fade-right">
+                <div class="hero-content">
             
                     <h1 class="hero-title display-4 fw-bold lh-1 mb-4 text-white">
                         <?php echo wp_kses_post($hero_title); ?>
@@ -71,7 +71,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
             </div>
 
             <div class="col-12 col-lg-6">
-                <div class="hero-card" data-aos="fade-left">
+                <div class="hero-card">
                     <div class="card border-0 shadow-lg bg-white bg-opacity-95">
                         <div class="card-body p-4">
                             <div class="d-flex align-items-center mb-3">
@@ -142,7 +142,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 
                 foreach ($client_logos as $index => $logo) : ?>
                 <div class="col-6 col-md-4 col-lg-3">
-                    <div class="logo-clean-item" data-aos="fade-up" data-aos-delay="<?php echo $index * 100; ?>">
+                    <div class="logo-clean-item">
                         <?php if (!empty($logo['website'])) : ?>
                         <a href="<?php echo esc_url($logo['website']); ?>" target="_blank" rel="noopener"
                             class="logo-clean-link" title="<?php echo esc_attr($logo['title']); ?>">
@@ -221,8 +221,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 $gradient_class = $gradient_colors[$index % 4];
                 ?>
             <div class="col-md-6 col-lg-3">
-                <div class="h-100 service-card-premium position-relative" data-aos="fade-up"
-                    data-aos-delay="<?php echo $index * 150; ?>">
+                <div class="h-100 service-card-premium position-relative">
                     <!-- Card principal -->
                     <div class="card border-0 shadow-lg h-100 service-main-card">
                         <!-- Header com ícone e gradiente -->
@@ -335,7 +334,7 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                 $color = $step_colors[$index % count($step_colors)];
                 ?>
             <div class="col-lg-4 col-md-6">
-                <div class="process-step-premium h-100" data-aos="fade-up" data-aos-delay="<?php echo $index * 200; ?>">
+                <div class="process-step-premium h-100">
                     <!-- Número do passo -->
                    
 

@@ -72,7 +72,7 @@
                     $featured_image = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
                     ?>
                     <div class="col-md-6 col-lg-4">
-                        <div class="testimonial-card-modern h-100" data-aos="fade-up" data-aos-delay="<?php echo array_search($client_name, array_column($testimonials_query->posts ?? [], 'post_title')) * 150; ?>">
+                        <div class="testimonial-card-modern h-100">
                             <!-- Quote icon decorativo -->
                             <div class="testimonial-quote-icon">
                                 <i class="bi bi-quote"></i>
@@ -158,7 +158,7 @@
                 
                 foreach ($default_testimonials as $index => $testimonial) : ?>
                     <div class="col-md-6 col-lg-4">
-                        <div class="testimonial-card-modern h-100" data-aos="fade-up" data-aos-delay="<?php echo $index * 150; ?>">
+                        <div class="testimonial-card-modern h-100">
                             <!-- Quote icon decorativo -->
                             <div class="testimonial-quote-icon">
                                 <i class="bi bi-quote"></i>
