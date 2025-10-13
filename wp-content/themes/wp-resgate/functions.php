@@ -2883,6 +2883,35 @@ function wp_resgate_trim_block_styles() {
 add_action('wp_enqueue_scripts', 'wp_resgate_trim_block_styles', 100);
 
 /**
+ * Injeta a tag do Google Ads/Analytics (gtag.js).
+ */
+function wp_resgate_output_gtag_script() {
+    if (is_admin()) {
+        return;
+    }
+
+    $tracking_id = 'AW-17649415974';
+    $gtag_src = sprintf(
+        'https://www.googletagmanager.com/gtag/js?id=%s',
+        rawurlencode($tracking_id)
+    );
+
+    printf(
+        "<!-- Google tag (gtag.js) -->\n<script async src=\"%s\"></script>\n",
+        esc_url($gtag_src)
+    );
+    ?>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '<?php echo esc_js($tracking_id); ?>');
+    </script>
+    <?php
+}
+add_action('wp_head', 'wp_resgate_output_gtag_script', 5);
+
+/**
  * Incluir integração com Google Sheets
  */
 require_once get_template_directory() . '/inc/google-sheets-integration.php';
