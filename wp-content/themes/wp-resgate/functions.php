@@ -2568,10 +2568,19 @@ function wp_resgate_seo_meta() {
     $site_name = wp_strip_all_tags(get_theme_mod('wp_resgate_company_name', get_bloginfo('name')));
     $raw_description = get_theme_mod('wp_resgate_tagline', get_bloginfo('description'));
     $description = wp_strip_all_tags($raw_description);
+
     if ($description === '') {
-        $description = wp_strip_all_tags(get_bloginfo('description'));
+        $hero_subtitle = get_theme_mod('wp_resgate_hero_subtitle', '');
+        if ($hero_subtitle !== '') {
+            $description = wp_strip_all_tags($hero_subtitle);
+        }
     }
-    $description = wp_trim_words($description, 50, '');
+
+    if ($description === '') {
+        $description = __('Especialistas em resgate, segurança e performance para sites WordPress com diagnóstico gratuito.', 'wp-resgate');
+    }
+
+    $description = wp_trim_words($description, 40, '');
 
     $canonical = trailingslashit(home_url());
     $locale = str_replace('_', '-', get_locale());
