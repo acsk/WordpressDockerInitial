@@ -1,290 +1,479 @@
 /**
  * Form Handler para integração com Google Sheets
- * WP Resgate - Sistema de captura de leads
+ * WP Resgate - Sistema de captura de leads (versão vanilla JS)
  */
 
-(function($) {
+(function () {
     'use strict';
-    
+
+    const GLOBAL_CONFIG = typeof window !== 'undefined' ? window.wpResgateForm || null : null;
+    const FORM_ID = 'wp-resgate-contact-form';
+    const MESSAGE_TIMEOUT = 5000;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById(FORM_ID);
+
+        if (!form || !GLOBAL_CONFIG) {
+            return;
+        }
+
+        new WPResgateFormHandler(form, GLOBAL_CONFIG);
+    });
+
     class WPResgateFormHandler {
-        constructor() {
-            this.form = $('#wp-resgate-contact-form');
-            this.submitBtn = this.form.find('.submit-btn');
-            this.originalBtnText = this.submitBtn.html();
-            
-            this.init();
+        constructor(form, config) {
+            this.form = form;
+            this.config = config;
+            this.submitBtn = form.querySelector('.submit-btn');
+            this.originalButtonHTML = this.submitBtn ? this.submitBtn.innerHTML : '';
+            this.messageTimer = null;
+            this.recaptchaObserver = null;
+            this.recaptchaPromise = null;
+            this.recaptchaLoading = false;
+
+            this.bindEvents();
+            this.setupRequiredIndicators();
+            this.setupRecaptchaLoader();
         }
-        
-        init() {
-            if (this.form.length) {
-                this.bindEvents();
-                this.setupValidation();
-            }
-        }
-        
+
         bindEvents() {
-            this.form.on('submit', (e) => this.handleSubmit(e));
-            
-            // Real-time validation
-            this.form.find('input, textarea, select').on('blur', (e) => {
-                this.validateField($(e.target));
+            this.form.addEventListener('submit', (event) => this.handleSubmit(event));
+
+            const fields = Array.from(this.form.querySelectorAll('input, textarea, select'));
+            fields.forEach((field) => {
+                field.addEventListener('blur', () => this.validateField(field));
             });
-            
-            // Phone mask
-            this.form.find('input[name="phone"]').on('input', (e) => {
-                this.applyPhoneMask($(e.target));
-            });
+
+            const phoneField = this.form.querySelector('input[name="phone"]');
+            if (phoneField) {
+                phoneField.addEventListener('input', () => this.applyPhoneMask(phoneField));
+            }
         }
-        
-        setupValidation() {
-            // Add required indicators
-            this.form.find('input[required], textarea[required], select[required]').each(function() {
-                const label = $(this).closest('.form-group').find('label');
-                if (!label.find('.required').length) {
-                    label.append('<span class="required text-danger ms-1">*</span>');
-                }
-            });
-        }
-        
-        handleSubmit(e) {
-            e.preventDefault();
-            
-            if (!this.validateForm()) {
-                this.showMessage(wpResgateForm.messages.validation_error, 'error');
+
+        async handleSubmit(event) {
+            event.preventDefault();
+
+            this.clearMessages();
+            this.clearFieldErrors();
+
+            const validation = this.validateForm();
+
+            if (!validation.isValid) {
+                this.showMessage(validation.message || this.config.messages.validation_error, 'error');
                 return;
             }
-            
-            if (typeof grecaptcha !== 'undefined' && !grecaptcha.getResponse()) {
-                this.showMessage(wpResgateForm.messages.recaptcha, 'error');
-                return;
+
+            if (this.shouldValidateRecaptcha()) {
+                await this.loadRecaptchaScript();
+
+                if (typeof window.grecaptcha === 'undefined') {
+                    this.showMessage(this.config.messages.error, 'error');
+                    return;
+                }
+
+                const recaptchaResponse = window.grecaptcha.getResponse();
+                if (!recaptchaResponse) {
+                    this.showMessage(this.config.messages.recaptcha, 'error');
+                    return;
+                }
             }
 
             this.setLoading(true);
-            
-            const formData = new FormData(this.form[0]);
-            formData.append('action', 'wp_resgate_form_submit');
-            formData.append('nonce', wpResgateForm.nonce);
-            
-            $.ajax({
-                url: wpResgateForm.ajax_url,
-                type: 'POST',
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: (response) => this.handleSuccess(response),
-                error: (xhr, status, error) => this.handleError(xhr, status, error),
-                complete: () => {
-                    this.setLoading(false);
 
-                    if (typeof grecaptcha !== 'undefined') {
-                        grecaptcha.reset();
-                    }
+            const formData = new FormData(this.form);
+            formData.append('action', 'wp_resgate_form_submit');
+            formData.append('nonce', this.config.nonce);
+
+            try {
+                const response = await fetch(this.config.ajax_url, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin',
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    this.showMessage(result.data.message, 'success');
+                    this.resetForm();
+                    this.trackConversion(result.data);
+                } else {
+                    this.showMessage(result.data.message, 'error');
                 }
-            });
-        }
-        
-        handleSuccess(response) {
-            if (response.success) {
-                this.showMessage(response.data.message, 'success');
-                this.resetForm();
-                
-                // Track conversion (Google Analytics, Facebook Pixel, etc.)
-                this.trackConversion(response.data);
-                
-                // Redirect to thank you page (optional)
-                // window.location.href = '/obrigado/';
-                
-            } else {
-                this.showMessage(response.data.message, 'error');
+            } catch (error) {
+                if (typeof console !== 'undefined' && console.error) {
+                    console.error('Form submission error:', error);
+                }
+                this.showMessage(this.config.messages.error, 'error');
+            } finally {
+                this.setLoading(false);
+
+                if (typeof window.grecaptcha !== 'undefined') {
+                    window.grecaptcha.reset();
+                }
             }
         }
-        
-        handleError(xhr, status, error) {
-            console.error('Form submission error:', {xhr, status, error});
-            this.showMessage(wpResgateForm.messages.error, 'error');
-        }
-        
+
         validateForm() {
             let isValid = true;
-            
-            this.form.find('input[required], textarea[required], select[required]').each((index, element) => {
-                if (!this.validateField($(element))) {
+            let message = '';
+            const requiredFields = this.form.querySelectorAll('input[required], textarea[required], select[required]');
+
+            requiredFields.forEach((field) => {
+                if (!field.value.trim()) {
+                    this.showFieldError(field, 'Este campo é obrigatório');
                     isValid = false;
                 }
             });
-            
-            // Email validation
-            const email = this.form.find('input[name="email"]');
-            if (email.val() && !this.isValidEmail(email.val())) {
-                this.showFieldError(email, 'Email inválido');
+
+            const emailField = this.form.querySelector('input[name="email"]');
+            if (emailField && emailField.value && !this.isValidEmail(emailField.value)) {
+                this.showFieldError(emailField, 'Email inválido');
                 isValid = false;
             }
-            
-            return isValid;
+
+            const phoneField = this.form.querySelector('input[name="phone"]');
+            if (phoneField && phoneField.value) {
+                const digits = phoneField.value.replace(/\D/g, '');
+                if (digits.length < 10) {
+                    this.showFieldError(phoneField, 'Telefone deve ter pelo menos 10 dígitos');
+                    isValid = false;
+                }
+            }
+
+            const websiteField = this.form.querySelector('input[name="website"]');
+            if (websiteField && websiteField.value && !this.isValidUrl(websiteField.value)) {
+                this.showFieldError(websiteField, 'URL inválida');
+                isValid = false;
+            }
+
+            const honeypot = this.form.querySelector('input[name="honeypot"]');
+            if (honeypot && honeypot.value.trim() !== '') {
+                isValid = false;
+            }
+
+            const privacyConsent = this.form.querySelector('input[name="privacy_consent"]');
+            if (privacyConsent && !privacyConsent.checked) {
+                message = 'Você deve aceitar os termos de privacidade';
+                isValid = false;
+            }
+
+            if (!isValid && !message) {
+                message = this.config.messages.validation_error;
+            }
+
+            return {
+                isValid,
+                message,
+            };
         }
-        
-        validateField($field) {
-            const value = $field.val().trim();
-            const fieldName = $field.attr('name');
-            
-            // Clear previous errors
-            this.clearFieldError($field);
-            
-            // Required field validation
-            if ($field.prop('required') && !value) {
-                this.showFieldError($field, 'Este campo é obrigatório');
+
+        validateField(field) {
+            if (!field) {
+                return true;
+            }
+
+            const value = field.value.trim();
+            const name = field.getAttribute('name');
+            let message = '';
+
+            if (field.required && !value) {
+                message = 'Este campo é obrigatório';
+            } else if (name === 'email' && value && !this.isValidEmail(value)) {
+                message = 'Email inválido';
+            } else if (name === 'phone' && value && value.replace(/\D/g, '').length < 10) {
+                message = 'Telefone deve ter pelo menos 10 dígitos';
+            } else if (name === 'website' && value && !this.isValidUrl(value)) {
+                message = 'URL inválida';
+            }
+
+            if (message) {
+                this.showFieldError(field, message);
                 return false;
             }
-            
-            // Specific field validations
-            switch (fieldName) {
-                case 'email':
-                    if (value && !this.isValidEmail(value)) {
-                        this.showFieldError($field, 'Email inválido');
-                        return false;
-                    }
-                    break;
-                    
-                case 'phone':
-                    if (value && value.length < 10) {
-                        this.showFieldError($field, 'Telefone deve ter pelo menos 10 dígitos');
-                        return false;
-                    }
-                    break;
-                    
-                case 'website':
-                    if (value && !this.isValidUrl(value)) {
-                        this.showFieldError($field, 'URL inválida');
-                        return false;
-                    }
-                    break;
-            }
-            
+
+            this.clearFieldError(field);
             return true;
         }
-        
-        showFieldError($field, message) {
-            $field.addClass('is-invalid');
-            
-            let errorDiv = $field.siblings('.invalid-feedback');
-            if (!errorDiv.length) {
-                errorDiv = $('<div class="invalid-feedback"></div>');
-                $field.after(errorDiv);
+
+        showFieldError(field, message) {
+            if (!field) {
+                return;
             }
-            
-            errorDiv.text(message);
-        }
-        
-        clearFieldError($field) {
-            $field.removeClass('is-invalid');
-            $field.siblings('.invalid-feedback').remove();
-        }
-        
-        setLoading(isLoading) {
-            if (isLoading) {
-                this.submitBtn.prop('disabled', true);
-                this.submitBtn.html(`
-                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    ${wpResgateForm.messages.sending}
-                `);
+
+            this.clearFieldError(field);
+            field.classList.add('is-invalid');
+
+            const feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            feedback.textContent = message;
+
+            if (field.type === 'checkbox' && field.parentElement) {
+                field.parentElement.appendChild(feedback);
             } else {
-                this.submitBtn.prop('disabled', false);
-                this.submitBtn.html(this.originalBtnText);
+                field.insertAdjacentElement('afterend', feedback);
             }
         }
-        
+
+        clearFieldError(field) {
+            if (!field) {
+                return;
+            }
+
+            field.classList.remove('is-invalid');
+
+            const nextSibling = field.nextElementSibling;
+            if (nextSibling && nextSibling.classList.contains('invalid-feedback')) {
+                nextSibling.remove();
+            }
+
+            if (field.type === 'checkbox' && field.parentElement) {
+                const checkboxFeedback = field.parentElement.querySelector('.invalid-feedback');
+                if (checkboxFeedback) {
+                    checkboxFeedback.remove();
+                }
+            }
+        }
+
+        clearFieldErrors() {
+            this.form.querySelectorAll('.is-invalid').forEach((field) => {
+                this.clearFieldError(field);
+            });
+        }
+
         showMessage(message, type) {
-            // Remove existing messages
-            this.form.find('.form-message').remove();
-            
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-            const iconClass = type === 'success' ? 'bi-check-circle' : 'bi-exclamation-triangle';
-            
-            const messageHtml = `
-                <div class="form-message alert ${alertClass} alert-dismissible fade show mt-3" role="alert">
-                    <i class="bi ${iconClass} me-2"></i>
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            if (!message) {
+                return;
+            }
+
+            this.clearMessages();
+
+            const alert = document.createElement('div');
+            const isSuccess = type === 'success';
+            const icon = isSuccess ? 'bi-check-circle' : 'bi-exclamation-triangle';
+
+            alert.className = `form-message alert alert-${isSuccess ? 'success' : 'danger'} alert-dismissible fade show mt-3`;
+            alert.setAttribute('role', 'alert');
+            alert.innerHTML = `
+                <i class="bi ${icon} me-2"></i>
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             `;
-            
-            this.form.prepend(messageHtml);
-            
-            // Scroll to message
-            $('html, body').animate({
-                scrollTop: this.form.offset().top - 100
-            }, 500);
-            
-            // Auto-hide success messages
-            if (type === 'success') {
-                setTimeout(() => {
-                    this.form.find('.form-message').fadeOut();
-                }, 5000);
+
+            this.form.insertAdjacentElement('afterbegin', alert);
+            this.scrollToForm();
+
+            if (isSuccess) {
+                this.messageTimer = window.setTimeout(() => {
+                    alert.classList.remove('show');
+                    alert.addEventListener('transitionend', () => alert.remove(), { once: true });
+                }, MESSAGE_TIMEOUT);
             }
         }
-        
+
+        clearMessages() {
+            if (this.messageTimer) {
+                window.clearTimeout(this.messageTimer);
+                this.messageTimer = null;
+            }
+
+            this.form.querySelectorAll('.form-message').forEach((message) => {
+                message.remove();
+            });
+        }
+
+        setLoading(isLoading) {
+            if (!this.submitBtn) {
+                return;
+            }
+
+            this.submitBtn.disabled = isLoading;
+
+            if (isLoading) {
+                this.submitBtn.innerHTML = `
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    ${this.config.messages.sending}
+                `;
+            } else {
+                this.submitBtn.innerHTML = this.originalButtonHTML;
+            }
+        }
+
         resetForm() {
-            this.form[0].reset();
-            this.form.find('.is-invalid').removeClass('is-invalid');
-            this.form.find('.invalid-feedback').remove();
+            this.form.reset();
+            this.clearFieldErrors();
         }
-        
+
+        setupRequiredIndicators() {
+            const requiredFields = this.form.querySelectorAll('input[required], textarea[required], select[required]');
+
+            requiredFields.forEach((field) => {
+                const group = field.closest('.form-group');
+                if (!group) {
+                    return;
+                }
+
+                const label = group.querySelector('label');
+                if (!label || label.querySelector('.required')) {
+                    return;
+                }
+
+                const indicator = document.createElement('span');
+                indicator.className = 'required text-danger ms-1';
+                indicator.textContent = '*';
+                label.appendChild(indicator);
+            });
+        }
+
+        applyPhoneMask(field) {
+            if (!field) {
+                return;
+            }
+
+            let value = field.value.replace(/\D/g, '');
+
+            if (value.length > 11) {
+                value = value.substring(0, 11);
+            }
+
+            if (value.length > 2) {
+                value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
+            }
+
+            if (value.length > 9) {
+                value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
+            }
+
+            field.value = value;
+        }
+
         isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
         }
-        
+
         isValidUrl(url) {
             try {
-                new URL(url.startsWith('http') ? url : 'https://' + url);
+                const prefixed = url.startsWith('http') ? url : `https://${url}`;
+                new URL(prefixed);
                 return true;
-            } catch {
+            } catch (error) {
                 return false;
             }
         }
-        
-        applyPhoneMask($field) {
-            let value = $field.val().replace(/\D/g, '');
-            
-            if (value.length <= 11) {
-                value = value.replace(/(\d{2})(\d)/, '($1) $2');
-                value = value.replace(/(\d{4,5})(\d{4})$/, '$1-$2');
-            }
-            
-            $field.val(value);
-        }
-        
+
         trackConversion(data) {
-            // Google Analytics 4
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'form_submit', {
-                    'event_category': 'engagement',
-                    'event_label': 'contact_form',
-                    'value': 1
+            if (typeof window.gtag !== 'undefined') {
+                window.gtag('event', 'form_submit', {
+                    event_category: 'engagement',
+                    event_label: 'contact_form',
+                    value: 1,
                 });
             }
-            
-            // Facebook Pixel
-            if (typeof fbq !== 'undefined') {
-                fbq('track', 'Lead', {
+
+            if (typeof window.fbq !== 'undefined') {
+                window.fbq('track', 'Lead', {
                     content_name: 'Diagnóstico WordPress',
-                    content_category: 'form_submission'
+                    content_category: 'form_submission',
                 });
             }
-            
-            // Custom tracking
-            if (typeof window.customTracker !== 'undefined') {
+
+            if (typeof window.customTracker !== 'undefined' && typeof window.customTracker.track === 'function') {
                 window.customTracker.track('form_submission', {
                     form_type: 'contact',
-                    lead_id: data.lead_id
+                    lead_id: data?.lead_id ?? null,
                 });
+            }
+        }
+
+        scrollToForm() {
+            const top = this.form.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({
+                top: top > 0 ? top : 0,
+                behavior: 'smooth',
+            });
+        }
+
+        setupRecaptchaLoader() {
+            if (!this.shouldValidateRecaptcha()) {
+                return;
+            }
+
+            const triggerLoad = () => {
+                this.loadRecaptchaScript();
+            };
+
+            if ('IntersectionObserver' in window) {
+                this.recaptchaObserver = new IntersectionObserver((entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            triggerLoad();
+                            if (this.recaptchaObserver) {
+                                this.recaptchaObserver.disconnect();
+                            }
+                        }
+                    });
+                }, { rootMargin: '200px' });
+
+                this.recaptchaObserver.observe(this.form);
+            } else {
+                triggerLoad();
+            }
+
+            this.form.addEventListener('focusin', triggerLoad, { once: true });
+        }
+
+        shouldValidateRecaptcha() {
+            return Boolean(this.config.recaptcha && this.config.recaptcha.enabled);
+        }
+
+        async loadRecaptchaScript() {
+            if (!this.shouldValidateRecaptcha() || typeof window.grecaptcha !== 'undefined') {
+                return Promise.resolve();
+            }
+
+            if (this.recaptchaPromise) {
+                return this.recaptchaPromise;
+            }
+
+            const existingScript = document.querySelector('script[data-wp-resgate-recaptcha]');
+            if (existingScript) {
+                this.recaptchaPromise = new Promise((resolve, reject) => {
+                    existingScript.addEventListener('load', () => resolve(), { once: true });
+                    existingScript.addEventListener('error', () => reject(), { once: true });
+                });
+                return this.recaptchaPromise;
+            }
+
+            this.recaptchaLoading = true;
+
+            this.recaptchaPromise = new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = this.config.recaptcha.scriptUrl || 'https://www.google.com/recaptcha/api.js';
+                script.async = true;
+                script.defer = true;
+                script.setAttribute('data-wp-resgate-recaptcha', 'true');
+
+                script.onload = () => {
+                    this.recaptchaLoading = false;
+                    resolve();
+                };
+
+                script.onerror = () => {
+                    this.recaptchaLoading = false;
+                    this.recaptchaPromise = null;
+                    reject();
+                };
+
+                document.head.appendChild(script);
+            });
+
+            try {
+                await this.recaptchaPromise;
+            } catch (error) {
+                if (typeof console !== 'undefined' && console.error) {
+                    console.error('Não foi possível carregar o reCAPTCHA.', error);
+                }
             }
         }
     }
-    
-    // Initialize when DOM is ready
-    $(document).ready(() => {
-        new WPResgateFormHandler();
-    });
-    
-})(jQuery);
+})();

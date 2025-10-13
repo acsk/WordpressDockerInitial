@@ -27,10 +27,33 @@ class WP_Resgate_Google_Sheets {
         wp_enqueue_script(
             'wp-resgate-form-handler',
             get_template_directory_uri() . '/assets/js/form-handler.js',
-            array('jquery'),
-            '1.0.0',
+            array(),
+            WP_RESGATE_VERSION,
             true
         );
+
+        $recaptcha_data = array(
+            'enabled' => wp_resgate_is_recaptcha_enabled(),
+            'scriptUrl' => '',
+        );
+
+        if ($recaptcha_data['enabled']) {
+            $registered = wp_script_is('google-recaptcha', 'registered') ? wp_scripts()->registered['google-recaptcha'] ?? null : null;
+
+            if ($registered && !empty($registered->src)) {
+                $recaptcha_data['scriptUrl'] = $registered->src;
+            } else {
+                $locale = determine_locale();
+                $locale = $locale ? str_replace('_', '-', $locale) : '';
+                $script_url = 'https://www.google.com/recaptcha/api.js';
+
+                if ($locale) {
+                    $script_url = add_query_arg(array('hl' => $locale), $script_url);
+                }
+
+                $recaptcha_data['scriptUrl'] = $script_url;
+            }
+        }
         
         // Localizar script com dados necessários
         wp_localize_script('wp-resgate-form-handler', 'wpResgateForm', array(
@@ -42,7 +65,8 @@ class WP_Resgate_Google_Sheets {
                 'error' => __('Erro ao enviar mensagem. Tente novamente.', 'wp-resgate'),
                 'validation_error' => __('Por favor, preencha todos os campos obrigatórios.', 'wp-resgate'),
                 'recaptcha' => __('Confirme que você não é um robô.', 'wp-resgate')
-            )
+            ),
+            'recaptcha' => $recaptcha_data,
         ));
     }
     

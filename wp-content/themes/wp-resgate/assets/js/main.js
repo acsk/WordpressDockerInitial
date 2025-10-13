@@ -46,8 +46,6 @@
             if (WPResgate.elements.body) {
                 WPResgate.elements.body.classList.add('wp-resgate-loaded');
             }
-            
-            console.log('WP Resgate theme inicializado com sucesso');
         } catch (error) {
             console.error('Erro na inicialização do tema:', error);
         }

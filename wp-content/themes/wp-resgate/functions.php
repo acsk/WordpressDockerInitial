@@ -124,10 +124,6 @@ function wp_resgate_scripts() {
         );
     }
 
-    if (wp_resgate_is_recaptcha_enabled()) {
-        wp_enqueue_script('google-recaptcha');
-    }
-
     // Localização para AJAX
     wp_localize_script('wp-resgate-script', 'wpResgate', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -175,6 +171,72 @@ function wp_resgate_is_recaptcha_enabled() {
 
     return $keys['site_key'] !== '' && $keys['secret_key'] !== '';
 }
+
+/**
+ * Substitui URLs locais dos Theme Mods pelo domínio atual.
+ *
+ * @param mixed $value
+ * @return mixed
+ */
+function wp_resgate_normalize_theme_mod_media($value) {
+    if (empty($value)) {
+        return $value;
+    }
+
+    if (is_array($value)) {
+        foreach ($value as $key => $item) {
+            $value[$key] = wp_resgate_normalize_theme_mod_media($item);
+        }
+
+        return $value;
+    }
+
+    if (!is_string($value)) {
+        return $value;
+    }
+
+    $home = untrailingslashit(home_url());
+    $search_hosts = [
+        'http://localhost:8090',
+        'https://localhost:8090',
+        'http://127.0.0.1:8090',
+        'https://127.0.0.1:8090',
+    ];
+
+    foreach ($search_hosts as $host) {
+        if (strpos($value, $host) !== false) {
+            $value = str_replace($host, $home, $value);
+        }
+    }
+
+    return $value;
+}
+
+$wp_resgate_media_theme_mods = [
+    'wp_resgate_logo',
+    'wp_resgate_hero_bg_image',
+    'wp_resgate_hero_image',
+];
+
+foreach ($wp_resgate_media_theme_mods as $theme_mod) {
+    add_filter('theme_mod_' . $theme_mod, 'wp_resgate_normalize_theme_mod_media');
+}
+
+add_filter('wp_get_attachment_url', 'wp_resgate_normalize_theme_mod_media');
+
+add_filter('wp_calculate_image_srcset', function ($sources) {
+    if (!is_array($sources)) {
+        return $sources;
+    }
+
+    foreach ($sources as $width => $source) {
+        if (isset($source['url'])) {
+            $sources[$width]['url'] = wp_resgate_normalize_theme_mod_media($source['url']);
+        }
+    }
+
+    return $sources;
+});
 
 /**
  * Determina se o ambiente atual é local/desenvolvimento.
