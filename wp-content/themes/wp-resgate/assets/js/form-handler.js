@@ -368,6 +368,12 @@
                     event_label: 'contact_form',
                     value: 1,
                 });
+
+                window.gtag('event', 'conversion', {
+                    send_to: 'AW-17649415974/iTciCIX-wKwbEKbu8t9B',
+                    value: 1.0,
+                    currency: 'BRL',
+                });
             }
 
             if (typeof window.fbq !== 'undefined') {
