@@ -322,11 +322,9 @@
                     }
                 }
                 
-                // Parallax effect mais suave (se necessário)
-                if (WPResgate.elements.heroSection && scrollTop < window.innerHeight) {
-                    const parallaxSpeed = 0.3;
-                    const transform = `translate3d(0, ${scrollTop * parallaxSpeed}px, 0)`;
-                    WPResgate.elements.heroSection.style.transform = transform;
+                // Reset hero transform para evitar animações/parallax
+                if (WPResgate.elements.heroSection) {
+                    WPResgate.elements.heroSection.style.transform = '';
                 }
                 
                 WPResgate.state.isScrolling = false;
