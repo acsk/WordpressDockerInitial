@@ -74,12 +74,12 @@ $recaptcha_site_key = get_theme_mod('wp_resgate_recaptcha_site_key', '');
                                 
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="phone" class="form-label">
-                                            <?php esc_html_e('Telefone', 'wp-resgate'); ?>
+                                        <label for="whatsapp" class="form-label">
+                                            <?php esc_html_e('WhatsApp', 'wp-resgate'); ?>
                                         </label>
                                         <input type="tel" 
-                                               id="phone" 
-                                               name="phone" 
+                                               id="whatsapp" 
+                                               name="whatsapp" 
                                                class="form-control" 
                                                placeholder="<?php esc_attr_e('(11) 99999-9999', 'wp-resgate'); ?>" />
                                     </div>

@@ -160,7 +160,7 @@ class WP_Resgate_Google_Sheets {
         return array(
             'name' => sanitize_text_field($post_data['name'] ?? ''),
             'email' => sanitize_email($post_data['email'] ?? ''),
-            'phone' => sanitize_text_field($post_data['phone'] ?? ''),
+            'phone' => sanitize_text_field($post_data['whatsapp'] ?? ''),
             'website' => sanitize_url($post_data['website'] ?? ''),
             'problem_type' => sanitize_text_field($post_data['problem_type'] ?? ''),
             'urgency' => sanitize_text_field($post_data['urgency'] ?? ''),
@@ -323,7 +323,7 @@ class WP_Resgate_Google_Sheets {
         $message = "Novo diagnóstico solicitado:\n\n";
         $message .= "Nome: {$data['name']}\n";
         $message .= "Email: {$data['email']}\n";
-        $message .= "Telefone: {$data['phone']}\n";
+        $message .= "WhatsApp: {$data['phone']}\n";
         $message .= "Website: {$data['website']}\n";
         $message .= "Tipo de problema: " . $this->get_problem_type_label($data['problem_type']) . "\n";
         $message .= "Urgência: " . $this->get_urgency_label($data['urgency']) . "\n";

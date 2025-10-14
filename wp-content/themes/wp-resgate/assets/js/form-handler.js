@@ -45,9 +45,9 @@
                 field.addEventListener('blur', () => this.validateField(field));
             });
 
-            const phoneField = this.form.querySelector('input[name="phone"]');
-            if (phoneField) {
-                phoneField.addEventListener('input', () => this.applyPhoneMask(phoneField));
+            const whatsappField = this.form.querySelector('input[name="whatsapp"]');
+            if (whatsappField) {
+                whatsappField.addEventListener('input', () => this.applyWhatsappMask(whatsappField));
             }
         }
 
@@ -65,6 +65,21 @@
             }
 
             
+            if (this.shouldValidateRecaptcha()) {
+                await this.loadRecaptchaScript();
+
+                if (typeof window.grecaptcha === 'undefined') {
+                    this.showMessage(this.config.messages.error, 'error');
+                    return;
+                }
+
+                const recaptchaResponse = window.grecaptcha.getResponse();
+                if (!recaptchaResponse) {
+                    this.showMessage(this.config.messages.recaptcha, 'error');
+                    return;
+                }
+            }
+
             this.setLoading(true);
 
             const formData = new FormData(this.form);
@@ -120,11 +135,11 @@
                 isValid = false;
             }
 
-            const phoneField = this.form.querySelector('input[name="phone"]');
-            if (phoneField && phoneField.value) {
-                const digits = phoneField.value.replace(/\D/g, '');
+            const whatsappField = this.form.querySelector('input[name="whatsapp"]');
+            if (whatsappField && whatsappField.value) {
+                const digits = whatsappField.value.replace(/\D/g, '');
                 if (digits.length < 10) {
-                    this.showFieldError(phoneField, 'Telefone deve ter pelo menos 10 dígitos');
+                    this.showFieldError(whatsappField, 'WhatsApp deve ter pelo menos 10 dígitos');
                     isValid = false;
                 }
             }
@@ -163,8 +178,8 @@
                 message = 'Este campo é obrigatório';
             } else if (name === 'email' && value && !this.isValidEmail(value)) {
                 message = 'Email inválido';
-            } else if (name === 'phone' && value && value.replace(/\D/g, '').length < 10) {
-                message = 'Telefone deve ter pelo menos 10 dígitos';
+            } else if (name === 'whatsapp' && value && value.replace(/\D/g, '').length < 10) {
+                message = 'WhatsApp deve ter pelo menos 10 dígitos';
             } else if (name === 'website' && value && !this.isValidUrl(value)) {
                 message = 'URL inválida';
             }
@@ -307,7 +322,7 @@
             });
         }
 
-        applyPhoneMask(field) {
+        applyWhatsappMask(field) {
             if (!field) {
                 return;
             }

@@ -346,7 +346,7 @@ class WP_Resgate_Leads_Admin {
                                                 <p><strong><?php esc_html_e('Nome:', 'wp-resgate'); ?></strong> <?php echo esc_html($lead->name); ?></p>
                                                 <p><strong><?php esc_html_e('Email:', 'wp-resgate'); ?></strong> <?php echo esc_html($lead->email); ?></p>
                                                 <?php if ($lead->phone): ?>
-                                                    <p><strong><?php esc_html_e('Telefone:', 'wp-resgate'); ?></strong> <?php echo esc_html($lead->phone); ?></p>
+                                                    <p><strong><?php esc_html_e('WhatsApp:', 'wp-resgate'); ?></strong> <?php echo esc_html($lead->phone); ?></p>
                                                 <?php endif; ?>
                                                 <?php if ($lead->website): ?>
                                                     <p><strong><?php esc_html_e('Website:', 'wp-resgate'); ?></strong> 
