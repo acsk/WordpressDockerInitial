@@ -846,6 +846,18 @@ function wp_resgate_get_s3_config() {
         'delete_local' => (bool) get_theme_mod('wp_resgate_s3_delete_local', false),
     ];
 
+    // Legados
+    if (!$config['enabled'] && get_theme_mod('wp_resgate_s3_enabled', false)) {
+        $config['enabled'] = true;
+    }
+
+    if ($config['cdn_base_url'] === '') {
+        $legacy_cdn = trim((string) get_theme_mod('wp_resgate_s3_custom_url', ''));
+        if ($legacy_cdn !== '') {
+            $config['cdn_base_url'] = untrailingslashit($legacy_cdn);
+        }
+    }
+
     if (defined('WP_RESGATE_S3_ENABLE')) {
         $config['enabled'] = (bool) WP_RESGATE_S3_ENABLE;
     }
