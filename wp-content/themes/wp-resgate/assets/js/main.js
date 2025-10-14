@@ -283,7 +283,7 @@
                 case 'tel':
                     if (!isValidPhone(value)) {
                         isValid = false;
-                        errorMessage = 'Por favor, insira um telefone válido.';
+                        errorMessage = 'Por favor, insira um número de WhatsApp válido.';
                     }
                     break;
             }

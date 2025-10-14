@@ -81,6 +81,7 @@ $recaptcha_site_key = get_theme_mod('wp_resgate_recaptcha_site_key', '');
                                                id="whatsapp" 
                                                name="whatsapp" 
                                                class="form-control" 
+                                               inputmode="tel"
                                                placeholder="<?php esc_attr_e('(11) 99999-9999', 'wp-resgate'); ?>" />
                                     </div>
                                 </div>
