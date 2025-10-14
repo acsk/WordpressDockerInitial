@@ -28,6 +28,7 @@ wp-config-docker.php
 # scripts/ - manteremos no Git para documentação
 google-apps-script/
 docs/
+wp-content/uploads/
 
 # IDEs
 .vscode/
