@@ -64,21 +64,7 @@
                 return;
             }
 
-            if (this.shouldValidateRecaptcha()) {
-                await this.loadRecaptchaScript();
-
-                if (typeof window.grecaptcha === 'undefined') {
-                    this.showMessage(this.config.messages.error, 'error');
-                    return;
-                }
-
-                const recaptchaResponse = window.grecaptcha.getResponse();
-                if (!recaptchaResponse) {
-                    this.showMessage(this.config.messages.recaptcha, 'error');
-                    return;
-                }
-            }
-
+            
             this.setLoading(true);
 
             const formData = new FormData(this.form);

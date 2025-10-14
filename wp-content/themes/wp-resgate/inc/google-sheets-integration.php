@@ -32,8 +32,10 @@ class WP_Resgate_Google_Sheets {
             true
         );
 
+        $recaptcha_enabled = wp_resgate_is_recaptcha_enabled() && !wp_resgate_should_skip_recaptcha();
+
         $recaptcha_data = array(
-            'enabled' => wp_resgate_is_recaptcha_enabled(),
+            'enabled' => $recaptcha_enabled,
             'scriptUrl' => '',
         );
 
@@ -89,7 +91,7 @@ class WP_Resgate_Google_Sheets {
             wp_die(__('Erro de segurança', 'wp-resgate'));
         }
 
-        if (wp_resgate_is_recaptcha_enabled()) {
+        if (wp_resgate_is_recaptcha_enabled() && !wp_resgate_should_skip_recaptcha()) {
             $recaptcha_token = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
 
             if (!wp_resgate_verify_recaptcha($recaptcha_token)) {
