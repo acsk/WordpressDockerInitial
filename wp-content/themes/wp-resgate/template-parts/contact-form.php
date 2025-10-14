@@ -155,27 +155,6 @@ $recaptcha_site_key = get_theme_mod('wp_resgate_recaptcha_site_key', '');
                                 <!-- Campo source -->
                                 <input type="hidden" name="source" value="website_form" />
                                 
-                                <div class="col-12">
-                                    <div class="form-check">
-                                        <input class="form-check-input" 
-                                               type="checkbox" 
-                                               id="privacy-consent" 
-                                               name="privacy_consent" 
-                                               required />
-                                        <label class="form-check-label small" for="privacy-consent">
-                                            <?php 
-                                            printf(
-                                                esc_html__('Li e aceito os %sTermos de Uso%s e %sPolítica de Privacidade%s', 'wp-resgate'),
-                                                '<a href="#" class="text-decoration-none">',
-                                                '</a>',
-                                                '<a href="#" class="text-decoration-none">',
-                                                '</a>'
-                                            );
-                                            ?>
-                                        </label>
-                                    </div>
-                                </div>
-                                
                                 <?php if ($recaptcha_site_key) : ?>
                                 <div class="col-12">
                                     <div class="g-recaptcha" data-sitekey="<?php echo esc_attr($recaptcha_site_key); ?>"></div>
@@ -308,12 +287,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Problem description validation
         if (!formData.get('problem_description').trim()) {
             showFieldError('problem-description', '<?php esc_html_e('Descrição do problema é obrigatória', 'wp-resgate'); ?>');
-            isValid = false;
-        }
-        
-        // Privacy consent validation
-        if (!document.getElementById('privacy-consent').checked) {
-            showMessage('<?php esc_html_e('Você deve aceitar a Política de Privacidade', 'wp-resgate'); ?>', 'error');
             isValid = false;
         }
         

@@ -154,12 +154,6 @@
                 isValid = false;
             }
 
-            const privacyConsent = this.form.querySelector('input[name="privacy_consent"]');
-            if (privacyConsent && !privacyConsent.checked) {
-                message = 'Você deve aceitar os termos de privacidade';
-                isValid = false;
-            }
-
             if (!isValid && !message) {
                 message = this.config.messages.validation_error;
             }

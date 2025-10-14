@@ -165,7 +165,6 @@ class WP_Resgate_Google_Sheets {
             'description' => sanitize_textarea_field($post_data['description'] ?? ''),
             'source' => sanitize_text_field($post_data['source'] ?? 'website'),
             'honeypot' => sanitize_text_field($post_data['honeypot'] ?? ''),
-            'privacy_consent' => sanitize_text_field($post_data['privacy_consent'] ?? ''),
             'timestamp' => current_time('mysql'),
             'ip_address' => $this->get_client_ip(),
             'user_agent' => sanitize_text_field($_SERVER['HTTP_USER_AGENT'] ?? ''),
@@ -182,11 +181,6 @@ class WP_Resgate_Google_Sheets {
         // Verificar honeypot (deve estar vazio)
         if (!empty($data['honeypot'])) {
             $errors[] = __('Spam detectado', 'wp-resgate');
-        }
-        
-        // Verificar consentimento de privacidade
-        if (empty($data['privacy_consent']) || $data['privacy_consent'] !== 'on') {
-            $errors[] = __('Você deve aceitar os termos de privacidade', 'wp-resgate');
         }
         
         if (empty($data['name'])) {
