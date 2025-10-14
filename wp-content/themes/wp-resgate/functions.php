@@ -788,15 +788,41 @@ function wp_resgate_customizer($wp_customize) {
         'type' => 'password',
     ]);
 
-    // S3: URL customizada
-    $wp_customize->add_setting('wp_resgate_s3_custom_url', [
+    // S3: Pasta dentro do bucket (opcional)
+    $wp_customize->add_setting('wp_resgate_s3_base_path', [
+        'default' => '',
+        'sanitize_callback' => 'wp_resgate_sanitize_path_fragment',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_base_path', [
+        'label' => __('Pasta dentro do bucket', 'wp-resgate'),
+        'description' => __('Opcional. Ex.: wp-content/uploads. Deixe vazio para manter a estrutura padrão.', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'text',
+    ]);
+
+    // S3: URL pública (CDN/S3)
+    $wp_customize->add_setting('wp_resgate_s3_cdn_base_url', [
         'default' => '',
         'sanitize_callback' => 'esc_url_raw',
         'transport' => 'refresh',
     ]);
-    $wp_customize->add_control('wp_resgate_s3_custom_url', [
-        'label' => __('URL Personalizada (Opcional)', 'wp-resgate'),
-        'description' => __('URL customizada para servir arquivos (ex: https://cdn.meusite.com). Deixe vazio para usar a URL padrão do S3.', 'wp-resgate'),
+    $wp_customize->add_control('wp_resgate_s3_cdn_base_url', [
+        'label' => __('URL Pública dos Uploads (CDN/S3)', 'wp-resgate'),
+        'description' => __('Ex.: https://wpprotegido-site-097786717489.s3.us-east-2.amazonaws.com/wp-content/uploads', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'url',
+    ]);
+
+    // S3: URL local (origem)
+    $wp_customize->add_setting('wp_resgate_s3_origin_base_url', [
+        'default' => home_url('/wp-content/uploads'),
+        'sanitize_callback' => 'esc_url_raw',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_origin_base_url', [
+        'label' => __('URL Local dos Uploads', 'wp-resgate'),
+        'description' => __('Normalmente https://seudominio.com/wp-content/uploads. Usado para reescrever links antigos.', 'wp-resgate'),
         'section' => 'wp_resgate_s3',
         'type' => 'url',
     ]);
