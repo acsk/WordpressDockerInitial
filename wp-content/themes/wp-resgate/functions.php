@@ -714,8 +714,138 @@ function wp_resgate_customizer($wp_customize) {
         'section' => 'wp_resgate_security',
         'type' => 'text',
     ]);
+
+    // === SEÇÃO: AMAZON S3 ===
+    $wp_customize->add_section('wp_resgate_s3', [
+        'title' => __('☁️ Amazon S3', 'wp-resgate'),
+        'description' => __('Configurações para integração com Amazon S3 para armazenamento de mídia.', 'wp-resgate'),
+        'panel' => 'wp_resgate_panel',
+        'priority' => 90,
+    ]);
+
+    // S3: Habilitar integração
+    $wp_customize->add_setting('wp_resgate_s3_enabled', [
+        'default' => false,
+        'sanitize_callback' => 'wp_validate_boolean',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_enabled', [
+        'label' => __('Habilitar Amazon S3', 'wp-resgate'),
+        'description' => __('Ativa a integração com Amazon S3 para armazenar arquivos de mídia na nuvem.', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'checkbox',
+    ]);
+
+    // S3: Bucket
+    $wp_customize->add_setting('wp_resgate_s3_bucket', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_bucket', [
+        'label' => __('Nome do Bucket S3', 'wp-resgate'),
+        'description' => __('Nome do bucket onde os arquivos serão armazenados (ex: meu-site-midia).', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'text',
+    ]);
+
+    // S3: Região
+    $wp_customize->add_setting('wp_resgate_s3_region', [
+        'default' => 'us-east-1',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_region', [
+        'label' => __('Região do Bucket', 'wp-resgate'),
+        'description' => __('Região AWS onde está localizado o bucket (ex: us-east-1, sa-east-1).', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'text',
+    ]);
+
+    // S3: Access Key
+    $wp_customize->add_setting('wp_resgate_s3_access_key', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_access_key', [
+        'label' => __('Access Key ID', 'wp-resgate'),
+        'description' => __('Chave de acesso AWS com permissões para o bucket S3.', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'text',
+    ]);
+
+    // S3: Secret Key
+    $wp_customize->add_setting('wp_resgate_s3_secret_key', [
+        'default' => '',
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_secret_key', [
+        'label' => __('Secret Access Key', 'wp-resgate'),
+        'description' => __('Chave secreta AWS correspondente ao Access Key ID.', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'password',
+    ]);
+
+    // S3: URL customizada
+    $wp_customize->add_setting('wp_resgate_s3_custom_url', [
+        'default' => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_custom_url', [
+        'label' => __('URL Personalizada (Opcional)', 'wp-resgate'),
+        'description' => __('URL customizada para servir arquivos (ex: https://cdn.meusite.com). Deixe vazio para usar a URL padrão do S3.', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'url',
+    ]);
+
+    // S3: Deletar arquivos locais
+    $wp_customize->add_setting('wp_resgate_s3_delete_local', [
+        'default' => false,
+        'sanitize_callback' => 'wp_validate_boolean',
+        'transport' => 'refresh',
+    ]);
+    $wp_customize->add_control('wp_resgate_s3_delete_local', [
+        'label' => __('Deletar Arquivos Locais', 'wp-resgate'),
+        'description' => __('Remove arquivos do servidor após upload bem-sucedido para o S3.', 'wp-resgate'),
+        'section' => 'wp_resgate_s3',
+        'type' => 'checkbox',
+    ]);
 }
 add_action('customize_register', 'wp_resgate_customizer');
+
+/**
+ * Obtém configurações do Amazon S3 do customizer
+ * @return array|false Configurações do S3 ou false se desabilitado
+ */
+function wp_resgate_get_s3_config() {
+    // Verifica se o S3 está habilitado
+    if (!get_theme_mod('wp_resgate_s3_enabled', false)) {
+        return false;
+    }
+
+    $bucket = get_theme_mod('wp_resgate_s3_bucket', '');
+    $region = get_theme_mod('wp_resgate_s3_region', 'us-east-1');
+    $access_key = get_theme_mod('wp_resgate_s3_access_key', '');
+    $secret_key = get_theme_mod('wp_resgate_s3_secret_key', '');
+
+    // Verifica se as configurações obrigatórias estão preenchidas
+    if (empty($bucket) || empty($access_key) || empty($secret_key)) {
+        return false;
+    }
+
+    return [
+        'enabled' => true,
+        'bucket' => $bucket,
+        'region' => $region,
+        'access_key' => $access_key,
+        'secret_key' => $secret_key,
+        'custom_url' => get_theme_mod('wp_resgate_s3_custom_url', ''),
+        'delete_local' => get_theme_mod('wp_resgate_s3_delete_local', false),
+    ];
+}
 
 /**
  * Gerar CSS customizado baseado nas configurações do Customizer
@@ -3061,6 +3191,7 @@ add_action('template_redirect', 'wp_resgate_render_thank_you_page');
  */
 require_once get_template_directory() . '/inc/google-sheets-integration.php';
 require_once get_template_directory() . '/inc/system-tests.php';
+require_once get_template_directory() . '/inc/s3-uploads.php';
 
 /**
  * Incluir painel administrativo dos leads
