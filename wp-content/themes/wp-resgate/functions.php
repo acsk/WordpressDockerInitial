@@ -724,12 +724,12 @@ function wp_resgate_customizer($wp_customize) {
     ]);
 
     // S3: Habilitar integração
-    $wp_customize->add_setting('wp_resgate_s3_enabled', [
+    $wp_customize->add_setting('wp_resgate_s3_enable', [
         'default' => false,
-        'sanitize_callback' => 'wp_validate_boolean',
+        'sanitize_callback' => 'wp_resgate_sanitize_checkbox',
         'transport' => 'refresh',
     ]);
-    $wp_customize->add_control('wp_resgate_s3_enabled', [
+    $wp_customize->add_control('wp_resgate_s3_enable', [
         'label' => __('Habilitar Amazon S3', 'wp-resgate'),
         'description' => __('Ativa a integração com Amazon S3 para armazenar arquivos de mídia na nuvem.', 'wp-resgate'),
         'section' => 'wp_resgate_s3',
@@ -816,35 +816,88 @@ function wp_resgate_customizer($wp_customize) {
 }
 add_action('customize_register', 'wp_resgate_customizer');
 
+function wp_resgate_sanitize_checkbox($value) {
+    return (bool) $value;
+}
+
+function wp_resgate_sanitize_secret($value) {
+    return trim((string) $value);
+}
+
+function wp_resgate_sanitize_path_fragment($value) {
+    $value = trim((string) $value);
+    return trim($value, '/');
+}
+
 /**
  * Obtém configurações do Amazon S3 do customizer
  * @return array|false Configurações do S3 ou false se desabilitado
  */
 function wp_resgate_get_s3_config() {
-    // Verifica se o S3 está habilitado
-    if (!get_theme_mod('wp_resgate_s3_enabled', false)) {
-        return false;
-    }
-
-    $bucket = get_theme_mod('wp_resgate_s3_bucket', '');
-    $region = get_theme_mod('wp_resgate_s3_region', 'us-east-1');
-    $access_key = get_theme_mod('wp_resgate_s3_access_key', '');
-    $secret_key = get_theme_mod('wp_resgate_s3_secret_key', '');
-
-    // Verifica se as configurações obrigatórias estão preenchidas
-    if (empty($bucket) || empty($access_key) || empty($secret_key)) {
-        return false;
-    }
-
-    return [
-        'enabled' => true,
-        'bucket' => $bucket,
-        'region' => $region,
-        'access_key' => $access_key,
-        'secret_key' => $secret_key,
-        'custom_url' => get_theme_mod('wp_resgate_s3_custom_url', ''),
-        'delete_local' => get_theme_mod('wp_resgate_s3_delete_local', false),
+    $config = [
+        'enabled' => (bool) get_theme_mod('wp_resgate_s3_enable', false),
+        'bucket' => trim((string) get_theme_mod('wp_resgate_s3_bucket', '')),
+        'region' => trim((string) get_theme_mod('wp_resgate_s3_region', 'us-east-1')),
+        'access_key' => trim((string) get_theme_mod('wp_resgate_s3_access_key', '')),
+        'secret_key' => trim((string) get_theme_mod('wp_resgate_s3_secret_key', '')),
+        'base_path' => trim((string) get_theme_mod('wp_resgate_s3_base_path', '')),
+        'cdn_base_url' => untrailingslashit(trim((string) get_theme_mod('wp_resgate_s3_cdn_base_url', ''))),
+        'origin_base_url' => untrailingslashit(trim((string) get_theme_mod('wp_resgate_s3_origin_base_url', home_url('/wp-content/uploads')))),
+        'delete_local' => (bool) get_theme_mod('wp_resgate_s3_delete_local', false),
     ];
+
+    if (defined('WP_RESGATE_S3_ENABLE')) {
+        $config['enabled'] = (bool) WP_RESGATE_S3_ENABLE;
+    }
+
+    if (defined('WP_RESGATE_S3_BUCKET')) {
+        $config['bucket'] = trim((string) WP_RESGATE_S3_BUCKET);
+    }
+
+    if (defined('WP_RESGATE_S3_REGION')) {
+        $config['region'] = trim((string) WP_RESGATE_S3_REGION);
+    }
+
+    if (defined('WP_RESGATE_S3_ACCESS_KEY')) {
+        $config['access_key'] = trim((string) WP_RESGATE_S3_ACCESS_KEY);
+    } elseif (empty($config['access_key']) && getenv('AWS_ACCESS_KEY_ID')) {
+        $config['access_key'] = trim((string) getenv('AWS_ACCESS_KEY_ID'));
+    }
+
+    if (defined('WP_RESGATE_S3_SECRET_KEY')) {
+        $config['secret_key'] = trim((string) WP_RESGATE_S3_SECRET_KEY);
+    } elseif (empty($config['secret_key']) && getenv('AWS_SECRET_ACCESS_KEY')) {
+        $config['secret_key'] = trim((string) getenv('AWS_SECRET_ACCESS_KEY'));
+    }
+
+    if (defined('WP_RESGATE_S3_BASE_PATH')) {
+        $config['base_path'] = trim((string) WP_RESGATE_S3_BASE_PATH, '/');
+    }
+
+    if (defined('WP_RESGATE_S3_CDN_BASE_URL')) {
+        $config['cdn_base_url'] = untrailingslashit(trim((string) WP_RESGATE_S3_CDN_BASE_URL));
+    }
+
+    if (defined('WP_RESGATE_S3_ORIGIN_BASE_URL')) {
+        $config['origin_base_url'] = untrailingslashit(trim((string) WP_RESGATE_S3_ORIGIN_BASE_URL));
+    }
+
+    if (defined('WP_RESGATE_S3_DELETE_LOCAL')) {
+        $config['delete_local'] = (bool) WP_RESGATE_S3_DELETE_LOCAL;
+    }
+
+    $config['base_path'] = trim($config['base_path'], '/');
+    if ($config['base_path'] === 'wp-uploads') {
+        $config['base_path'] = '';
+    }
+
+    $config['region'] = $config['region'] ?: 'us-east-1';
+
+    if ($config['origin_base_url'] === '') {
+        $config['origin_base_url'] = untrailingslashit(home_url('/wp-content/uploads'));
+    }
+
+    return $config;
 }
 
 /**
