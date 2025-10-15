@@ -3197,15 +3197,52 @@ function wp_resgate_get_thank_you_base_url() {
         }
     }
 
+    $page_url = wp_resgate_find_thank_you_page_url();
+    if ($page_url) {
+        return apply_filters('wp_resgate_thank_you_base_url', $page_url);
+    }
+
     $default = add_query_arg('wp_resgate_thank_you', '1', home_url('/'));
 
     return apply_filters('wp_resgate_thank_you_base_url', $default);
 }
 
 /**
+ * Localiza uma página que utilize o template de agradecimento.
+ */
+function wp_resgate_find_thank_you_page_url() {
+    $cached = wp_cache_get('wp_resgate_thank_you_page_url');
+    if ($cached !== false) {
+        return $cached;
+    }
+
+    $args = [
+        'post_type'      => 'page',
+        'post_status'    => 'publish',
+        'meta_key'       => '_wp_page_template',
+        'meta_value'     => 'template-thank-you.php',
+        'numberposts'    => 1,
+        'orderby'        => 'menu_order',
+        'order'          => 'ASC',
+        'suppress_filters' => false,
+    ];
+
+    $pages = get_posts($args);
+    $url = $pages ? get_permalink($pages[0]) : '';
+
+    wp_cache_set('wp_resgate_thank_you_page_url', $url, '', MINUTE_IN_SECONDS);
+
+    return $url;
+}
+
+/**
  * Renderiza página intermediária de agradecimento e redireciona de volta.
  */
 function wp_resgate_render_thank_you_page() {
+    if (wp_resgate_find_thank_you_page_url()) {
+        return;
+    }
+
     if (!isset($_GET['wp_resgate_thank_you'])) {
         return;
     }

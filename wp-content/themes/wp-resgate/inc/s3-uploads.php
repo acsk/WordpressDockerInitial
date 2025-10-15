@@ -9,7 +9,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use WP_REST_Response;
 
 /**
  * Verifica se a integração está habilitada e com dados suficientes.

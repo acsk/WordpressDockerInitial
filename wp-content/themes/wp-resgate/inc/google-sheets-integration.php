@@ -61,7 +61,7 @@ class WP_Resgate_Google_Sheets {
             'enabled' => true,
             'baseUrl' => wp_resgate_get_thank_you_base_url(),
             'returnParam' => 'return',
-            'delay' => 1500,
+            'delay' => 250,
             'appendReturn' => true,
         );
         $redirect_data = apply_filters('wp_resgate_form_redirect_config', $redirect_data);
