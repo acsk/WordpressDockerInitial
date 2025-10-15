@@ -3097,6 +3097,14 @@ add_filter('stylesheet_uri', function ($stylesheet_uri) {
     return $stylesheet_uri;
 });
 
+add_filter('body_class', function ($classes) {
+    if (!in_array('wp-resgate-loaded', $classes, true)) {
+        $classes[] = 'wp-resgate-loaded';
+    }
+
+    return $classes;
+});
+
 /**
  * Adiciona defer a scripts do tema e move jQuery para o rodapé.
  */

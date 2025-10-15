@@ -89,12 +89,41 @@ $hero_btn2_text = get_theme_mod('wp_resgate_hero_btn2_text', 'Ver soluções');
                             <div class="preview-image">
                                 <?php 
                                 $hero_image = get_theme_mod('wp_resgate_hero_image');
-                                if ($hero_image) : ?>
-                                <img class="img-fluid rounded-3 shadow-sm" src="<?php echo esc_url($hero_image); ?>"
+                                if ($hero_image) :
+                                    $hero_image_id     = attachment_url_to_postid($hero_image);
+                                    $hero_src          = $hero_image;
+                                    $hero_srcset       = '';
+                                    $hero_sizes        = '(max-width: 992px) 100vw, 50vw';
+                                    $hero_width        = 1200;
+                                    $hero_height       = 800;
+
+                                    if ($hero_image_id) {
+                                        $meta = wp_get_attachment_metadata($hero_image_id);
+                                        if (!empty($meta['width']) && !empty($meta['height'])) {
+                                            $hero_width  = (int) $meta['width'];
+                                            $hero_height = (int) $meta['height'];
+                                        }
+                                        $hero_src    = wp_get_attachment_image_url($hero_image_id, 'full');
+                                        $hero_srcset = wp_get_attachment_image_srcset($hero_image_id, 'full');
+                                    }
+                                    ?>
+                                <img class="img-fluid rounded-3 shadow-sm"
+                                    src="<?php echo esc_url($hero_src); ?>"
+                                    <?php if ($hero_srcset) : ?>srcset="<?php echo esc_attr($hero_srcset); ?>"<?php endif; ?>
+                                    sizes="<?php echo esc_attr($hero_sizes); ?>"
+                                    width="<?php echo esc_attr($hero_width); ?>"
+                                    height="<?php echo esc_attr($hero_height); ?>"
+                                    loading="eager"
+                                    decoding="async"
+                                    fetchpriority="high"
                                     alt="<?php esc_attr_e('Mockup WordPress', 'wp-resgate'); ?>" />
                                 <?php else : ?>
                                 <img class="img-fluid rounded-3 shadow-sm"
-                                    src="https://placehold.co/900x520/f8f9fa/6c757d?text=Painel+WordPress+\n(Mockup+para+Protótipo)"
+                                    src="https://placehold.co/1200x800/f8f9fa/6c757d?text=Painel+WordPress+\n(Mockup+para+Protótipo)"
+                                    width="1200" height="800"
+                                    loading="eager"
+                                    decoding="async"
+                                    fetchpriority="high"
                                     alt="<?php esc_attr_e('Mockup WordPress', 'wp-resgate'); ?>" />
                                 <?php endif; ?>
                             </div>

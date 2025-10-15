@@ -178,6 +178,21 @@ body {
     border-color: rgba(255, 255, 255, 0.85) !important;
 }
 
+.hero .preview-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.hero .preview-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
 .hero::before {
     content: '';
     position: absolute;

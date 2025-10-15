@@ -42,12 +42,10 @@
             initFormValidation();
             initAnalytics();
             
-            // Indicar que o tema está carregado
-            if (WPResgate.elements.body) {
-                WPResgate.elements.body.classList.add('wp-resgate-loaded');
-            }
         } catch (error) {
-            console.error('Erro na inicialização do tema:', error);
+            if (typeof console !== 'undefined') {
+                console.error('Erro na inicialização do tema:', error);
+            }
         }
     }
     
