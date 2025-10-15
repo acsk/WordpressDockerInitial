@@ -2080,6 +2080,20 @@ img[loading="lazy"].loaded {
     pointer-events: none;
 }
 
+.logos-clean-section *,
+.services-premium-section *,
+.how-it-works-premium-section *,
+.faq-premium-section *,
+#diagnostico *,
+.logos-clean-section,
+.services-premium-section,
+.how-it-works-premium-section,
+.faq-premium-section,
+#diagnostico {
+    animation: none !important;
+    transition: none;
+}
+
 /* Header da seção */
 .logos-header-badge {
     margin-bottom: 1rem;
