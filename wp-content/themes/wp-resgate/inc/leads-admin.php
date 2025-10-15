@@ -66,14 +66,14 @@ class WP_Resgate_Leads_Admin {
         if (strpos($hook, 'wp-resgate-leads') !== false) {
             wp_enqueue_style(
                 'wp-resgate-admin',
-                get_template_directory_uri() . '/assets/css/admin-leads.css',
+                wp_resgate_asset_url('css/admin-leads.css'),
                 array(),
                 '1.0.0'
             );
-            
+
             wp_enqueue_script(
                 'wp-resgate-admin',
-                get_template_directory_uri() . '/assets/js/admin-leads.js',
+                wp_resgate_asset_url('js/admin-leads.js'),
                 array('jquery'),
                 '1.0.0',
                 true

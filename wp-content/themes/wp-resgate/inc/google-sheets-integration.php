@@ -26,7 +26,7 @@ class WP_Resgate_Google_Sheets {
     public function enqueue_scripts() {
         wp_enqueue_script(
             'wp-resgate-form-handler',
-            get_template_directory_uri() . '/assets/js/form-handler.js',
+            wp_resgate_asset_url('js/form-handler.js'),
             array(),
             WP_RESGATE_VERSION,
             true

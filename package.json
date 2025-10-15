@@ -1,0 +1,7 @@
+{
+  "name": "wordpress-s3-cdn",
+  "private": true,
+  "scripts": {
+    "sync:assets": "bash scripts/sync-assets.sh"
+  }
+}

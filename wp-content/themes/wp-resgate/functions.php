@@ -25,6 +25,33 @@ define('WP_RESGATE_THEME_URL', get_template_directory_uri());
 define('WP_RESGATE_THEME_PATH', get_template_directory());
 
 /**
+ * Recupera a URL base para os assets do tema (CSS/JS/imagens).
+ */
+function wp_resgate_get_assets_base_url() {
+    $base = WP_RESGATE_THEME_URL . '/assets';
+
+    if (defined('WP_RESGATE_ASSETS_BASE_URL') && WP_RESGATE_ASSETS_BASE_URL !== '') {
+        $base = untrailingslashit(WP_RESGATE_ASSETS_BASE_URL);
+    }
+
+    return apply_filters('wp_resgate_assets_base_url', $base);
+}
+
+/**
+ * Monta a URL completa para um asset do tema.
+ */
+function wp_resgate_asset_url($relative_path = '') {
+    $base = wp_resgate_get_assets_base_url();
+    $path = ltrim($relative_path, '/');
+
+    if ($path === '') {
+        return $base;
+    }
+
+    return $base . '/' . $path;
+}
+
+/**
  * Configuração do tema
  */
 function wp_resgate_setup() {
@@ -66,7 +93,7 @@ function wp_resgate_scripts() {
     // Bootstrap CSS (local)
     wp_enqueue_style(
         'bootstrap',
-        WP_RESGATE_THEME_URL . '/assets/libs/bootstrap/css/bootstrap.min.css',
+        wp_resgate_asset_url('libs/bootstrap/css/bootstrap.min.css'),
         [],
         '5.3.3'
     );
@@ -74,7 +101,7 @@ function wp_resgate_scripts() {
     // Bootstrap Icons (local)
     wp_enqueue_style(
         'bootstrap-icons',
-        WP_RESGATE_THEME_URL . '/assets/libs/bootstrap-icons/bootstrap-icons.css',
+        wp_resgate_asset_url('libs/bootstrap-icons/bootstrap-icons.css'),
         [],
         '1.11.3'
     );
@@ -90,7 +117,7 @@ function wp_resgate_scripts() {
     // CSS adicional para correção de scroll
     wp_enqueue_style(
         'wp-resgate-scroll-fix',
-        WP_RESGATE_THEME_URL . '/assets/css/scroll-fix.css',
+        wp_resgate_asset_url('css/scroll-fix.css'),
         ['wp-resgate-style'],
         WP_RESGATE_VERSION
     );
@@ -98,7 +125,7 @@ function wp_resgate_scripts() {
     // Bootstrap JS (local)
     wp_enqueue_script(
         'bootstrap',
-        WP_RESGATE_THEME_URL . '/assets/libs/bootstrap/js/bootstrap.bundle.min.js',
+        wp_resgate_asset_url('libs/bootstrap/js/bootstrap.bundle.min.js'),
         [],
         '5.3.3',
         true
@@ -107,7 +134,7 @@ function wp_resgate_scripts() {
     // Script principal do tema
     wp_enqueue_script(
         'wp-resgate-script',
-        WP_RESGATE_THEME_URL . '/assets/js/main.js',
+        wp_resgate_asset_url('js/main.js'),
         ['bootstrap'],
         WP_RESGATE_VERSION,
         true
@@ -117,7 +144,7 @@ function wp_resgate_scripts() {
     if (WP_DEBUG || (isset($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'localhost') !== false)) {
         wp_enqueue_script(
             'wp-resgate-diagnostics',
-            WP_RESGATE_THEME_URL . '/assets/js/diagnostics.js',
+            wp_resgate_asset_url('js/diagnostics.js'),
             [],
             WP_RESGATE_VERSION,
             false // Carregar no head para capturar erros cedo
@@ -2325,7 +2352,7 @@ function wp_resgate_admin_enqueue_scripts($hook) {
     if (in_array($post_type, ['process_steps', 'testimonial', 'service', 'client_logo'])) {
         wp_enqueue_style(
             'bootstrap-icons-admin',
-            WP_RESGATE_THEME_URL . '/assets/libs/bootstrap-icons/bootstrap-icons.css',
+            wp_resgate_asset_url('libs/bootstrap-icons/bootstrap-icons.css'),
             [],
             '1.11.3'
         );
@@ -2971,6 +2998,19 @@ function wp_resgate_resource_hints($hints, $relation_type) {
 
     if ($relation_type === 'preconnect') {
         $hints[] = home_url('/');
+
+        $assets_base = wp_parse_url(wp_resgate_get_assets_base_url(), PHP_URL_SCHEME) . '://' . wp_parse_url(wp_resgate_get_assets_base_url(), PHP_URL_HOST);
+        if (!empty($assets_base)) {
+            $hints[] = $assets_base;
+        }
+
+        $cdn_uploads = wp_resgate_get_s3_config();
+        if (!empty($cdn_uploads['cdn_base_url'])) {
+            $origin = wp_parse_url($cdn_uploads['cdn_base_url']);
+            if (!empty($origin['scheme']) && !empty($origin['host'])) {
+                $hints[] = $origin['scheme'] . '://' . $origin['host'];
+            }
+        }
     }
 
     return array_unique($hints);
@@ -3003,7 +3043,19 @@ function wp_resgate_async_styles($html, $handle, $href, $media) {
         return $html;
     }
 
-    $href_attr = esc_url($href);
+    $map = [
+        'bootstrap'             => 'libs/bootstrap/css/bootstrap.min.css',
+        'bootstrap-icons'       => 'libs/bootstrap-icons/bootstrap-icons.css',
+        'wp-resgate-scroll-fix' => 'css/scroll-fix.css',
+    ];
+
+    if (isset($map[$handle])) {
+        $href_attr = esc_url(wp_resgate_asset_url($map[$handle]));
+    } elseif ($handle === 'wp-resgate-style') {
+        $href_attr = esc_url(get_stylesheet_uri());
+    } else {
+        $href_attr = esc_url($href);
+    }
     $media_attr = esc_attr($media);
     // Removido crossorigin - usando apenas arquivos locais agora
 

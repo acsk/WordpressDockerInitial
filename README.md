@@ -52,5 +52,10 @@ git push origin v1.1.1
 - **Deploy Automático:** Ativo
 - **Admin Panel:** Sem duplicação
 
+## 📚 Documentação complementar
+
+- [`docs/assets-s3.md`](docs/assets-s3.md) — como sincronizar e servir os assets do tema via S3/CDN.
+- [`docs/cdn-setup.md`](docs/cdn-setup.md) — guia completo (IAM, S3, CloudFront, DNS, WordPress, automações).
+
 ---
 **Desenvolvido para WP Resgate** - Sistema profissional de gestão de leads WordPress
