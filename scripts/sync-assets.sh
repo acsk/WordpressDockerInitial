@@ -29,3 +29,14 @@ aws s3 sync "${LOCAL_ASSETS_DIR}/" \
     --delete
 
 echo "[sync-assets] Assets sincronizados com s3://${S3_BUCKET}/${S3_ASSETS_PREFIX}/"
+
+STYLE_FILE="wp-content/themes/${THEME_SLUG}/style.css"
+if [ -f "${STYLE_FILE}" ]; then
+    aws s3 cp "${STYLE_FILE}" \
+        "s3://${S3_BUCKET}/${THEME_SLUG}/style.css" \
+        --profile "${AWS_PROFILE}" \
+        --region "${AWS_REGION}" \
+        --cache-control "public, max-age=31536000, immutable"
+
+    echo "[sync-assets] style.css enviado para s3://${S3_BUCKET}/${THEME_SLUG}/style.css"
+fi

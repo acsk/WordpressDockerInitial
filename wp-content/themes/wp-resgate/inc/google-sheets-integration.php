@@ -88,7 +88,10 @@ class WP_Resgate_Google_Sheets {
     public function handle_form_submission() {
         // Verificar nonce
         if (!wp_verify_nonce($_POST['nonce'], 'wp_resgate_form_nonce')) {
-            wp_die(__('Erro de segurança', 'wp-resgate'));
+            wp_send_json_error([
+                'message' => __('Sua sessão expirou. Atualize a página e tente novamente.', 'wp-resgate'),
+                'code'    => 'invalid_nonce',
+            ], 403);
         }
 
         if (wp_resgate_is_recaptcha_enabled() && !wp_resgate_should_skip_recaptcha()) {

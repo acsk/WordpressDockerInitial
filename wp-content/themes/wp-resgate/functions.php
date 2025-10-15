@@ -52,6 +52,18 @@ function wp_resgate_asset_url($relative_path = '') {
 }
 
 /**
+ * Recupera a URL base do tema (sem o sufixo /assets).
+ */
+function wp_resgate_get_theme_base_url() {
+    $assets_base = untrailingslashit(wp_resgate_get_assets_base_url());
+    if (substr($assets_base, -7) === '/assets') {
+        return substr($assets_base, 0, -7);
+    }
+
+    return untrailingslashit(WP_RESGATE_THEME_URL);
+}
+
+/**
  * Configuração do tema
  */
 function wp_resgate_setup() {
@@ -3073,6 +3085,17 @@ function wp_resgate_async_styles($html, $handle, $href, $media) {
     return $preload . "\n" . $noscript;
 }
 add_filter('style_loader_tag', 'wp_resgate_async_styles', 10, 4);
+
+add_filter('stylesheet_uri', function ($stylesheet_uri) {
+    $theme_base = untrailingslashit(WP_RESGATE_THEME_URL);
+    $cdn_base   = untrailingslashit(wp_resgate_get_theme_base_url());
+
+    if ($theme_base !== $cdn_base && strpos($stylesheet_uri, $theme_base) === 0) {
+        return $cdn_base . substr($stylesheet_uri, strlen($theme_base));
+    }
+
+    return $stylesheet_uri;
+});
 
 /**
  * Adiciona defer a scripts do tema e move jQuery para o rodapé.

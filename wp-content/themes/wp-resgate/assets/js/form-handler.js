@@ -100,6 +100,9 @@
                     this.resetForm();
                     this.trackConversion(result.data);
                     this.scheduleRedirect();
+                } else if (result?.data?.code === 'invalid_nonce') {
+                    this.showMessage(result.data.message, 'error');
+                    window.setTimeout(() => window.location.reload(), 1500);
                 } else {
                     this.showMessage(result.data.message, 'error');
                 }
