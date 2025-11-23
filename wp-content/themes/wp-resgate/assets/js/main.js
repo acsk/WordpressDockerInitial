@@ -381,7 +381,7 @@
         });
         
         // Honeypot check
-        if (formData.get('website')) {
+        if (formData.get('honeypot')) {
             return; // Spam detected
         }
         
@@ -413,10 +413,14 @@
                 body: new URLSearchParams({
                     action: 'diagnostic_form',
                     nonce: wpResgate.nonce,
-                    name: formData.get('client_name'),
-                    email: formData.get('client_email'),
-                    website: formData.get('website_url'),
-                    problem: formData.get('problem_description')
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    website: formData.get('website'),
+                    problem: formData.get('problem'),
+                    whatsapp: formData.get('whatsapp'),
+                    problem_type: formData.get('problem_type'),
+                    urgency: formData.get('urgency'),
+                    source: formData.get('source') || 'website_form'
                 })
             });
             
@@ -428,7 +432,7 @@
                 
                 // Track conversion
                 trackEvent('diagnostic_form_submitted', {
-                    website: formData.get('website_url')
+                    website: formData.get('website')
                 });
                 
                 // Redirect ou scroll para agradecimento

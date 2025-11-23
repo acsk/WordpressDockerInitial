@@ -20,7 +20,8 @@ if (!defined('ABSPATH')) {
 }
 
 // Constantes do tema
-define('WP_RESGATE_VERSION', '1.0.0');
+// Bump version to forçar reload de CSS/JS durante debug local.
+define('WP_RESGATE_VERSION', '1.0.1-local');
 define('WP_RESGATE_THEME_URL', get_template_directory_uri());
 define('WP_RESGATE_THEME_PATH', get_template_directory());
 
@@ -30,7 +31,8 @@ define('WP_RESGATE_THEME_PATH', get_template_directory());
 function wp_resgate_get_assets_base_url() {
     $base = WP_RESGATE_THEME_URL . '/assets';
 
-    if (defined('WP_RESGATE_ASSETS_BASE_URL') && WP_RESGATE_ASSETS_BASE_URL !== '') {
+    // Para evitar cache/CDN em desenvolvimento, só use CDN se explicitamente forçado.
+    if (defined('WP_RESGATE_FORCE_CDN') && WP_RESGATE_FORCE_CDN === true && defined('WP_RESGATE_ASSETS_BASE_URL') && WP_RESGATE_ASSETS_BASE_URL !== '') {
         $base = untrailingslashit(WP_RESGATE_ASSETS_BASE_URL);
     }
 
@@ -1099,10 +1101,14 @@ function wp_resgate_handle_diagnostic_form() {
     }
 
     // Sanitizar dados
-    $name = sanitize_text_field($_POST['name']);
-    $email = sanitize_email($_POST['email']);
-    $website = esc_url_raw($_POST['website']);
-    $problem = sanitize_textarea_field($_POST['problem']);
+    $name = sanitize_text_field($_POST['name'] ?? '');
+    $email = sanitize_email($_POST['email'] ?? '');
+    $website = esc_url_raw($_POST['website'] ?? '');
+    $problem = sanitize_textarea_field($_POST['problem'] ?? '');
+    $whatsapp = sanitize_text_field($_POST['whatsapp'] ?? '');
+    $problem_type = sanitize_text_field($_POST['problem_type'] ?? '');
+    $urgency = sanitize_text_field($_POST['urgency'] ?? '');
+    $source = sanitize_text_field($_POST['source'] ?? 'website_form');
 
     // Validar dados
     if (empty($name) || empty($email) || empty($website) || empty($problem)) {
@@ -1113,6 +1119,11 @@ function wp_resgate_handle_diagnostic_form() {
         wp_send_json_error(__('E-mail inválido', 'wp-resgate'));
     }
 
+    // Honeypot simples
+    if (!empty($_POST['honeypot'])) {
+        wp_send_json_error(__('Falha na validação do formulário.', 'wp-resgate'));
+    }
+
     // Enviar e-mail
     $to = get_option('admin_email');
     $subject = '[WP Resgate] Nova solicitação de diagnóstico';
@@ -1120,12 +1131,20 @@ function wp_resgate_handle_diagnostic_form() {
         "Nova solicitação de diagnóstico:\n\n" .
         "Nome: %s\n" .
         "E-mail: %s\n" .
+        "WhatsApp: %s\n" .
         "Website: %s\n" .
+        "Tipo de problema: %s\n" .
+        "Urgência: %s\n" .
+        "Origem: %s\n" .
         "Problema:\n%s\n\n" .
         "Data: %s",
         $name,
         $email,
+        $whatsapp ?: '-',
         $website,
+        $problem_type ?: '-',
+        $urgency ?: '-',
+        $source ?: '-',
         $problem,
         current_time('d/m/Y H:i:s')
     );
@@ -2665,17 +2684,7 @@ function get_faqs($args = []) {
         'post_status' => 'publish',
         'posts_per_page' => -1,
         'orderby' => 'menu_order',
-        'order' => 'ASC',
-        'meta_query' => [
-            [
-                'key' => '_faq_question',
-                'compare' => 'EXISTS'
-            ],
-            [
-                'key' => '_faq_answer',
-                'compare' => 'EXISTS'
-            ]
-        ]
+        'order' => 'ASC'
     ];
     
     $args = wp_parse_args($args, $defaults);
@@ -2685,6 +2694,15 @@ function get_faqs($args = []) {
     foreach ($posts as $post) {
         $question = get_post_meta($post->ID, '_faq_question', true);
         $answer = get_post_meta($post->ID, '_faq_answer', true);
+
+        // Permitir fallback para título/conteúdo caso os metacampos não tenham sido preenchidos
+        if (!$question) {
+            $question = $post->post_title;
+        }
+
+        if (!$answer) {
+            $answer = $post->post_content ?: $post->post_excerpt;
+        }
         $expanded = get_post_meta($post->ID, '_faq_expanded', true) === '1';
         
         if ($question && $answer) {
